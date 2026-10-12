@@ -17,6 +17,7 @@ export const TILE_FRAME = {
   PLANK: 12,
   WALL: 13,
   FLOOR: 14,
+  FIRE: 15,
 };
 
 const PAL = {
@@ -180,6 +181,21 @@ function drawWall(ctx, ox) {
   ctx.fillRect(ox, TILE - 1, TILE, 1);
 }
 
+function drawFire(ctx, ox) {
+  drawGrass(ctx, ox, 0);
+  // Vòng đá quanh bếp
+  const stone = '#7a7f86', stoneD = '#4a4e55';
+  for (let x = 3; x < 13; x++) { px(ctx, ox + x, 11, stone); px(ctx, ox + x, 12, stoneD); }
+  px(ctx, ox + 3, 10, stone); px(ctx, ox + 12, 10, stone);
+  // Củi
+  ctx.fillStyle = PAL.mudA;
+  ctx.fillRect(ox + 4, 12, 8, 2);
+  // Lửa: lõi vàng, ngoài cam/đỏ
+  const flame = [[7, 4], [8, 4], [6, 6], [7, 6], [8, 6], [9, 6], [5, 8], [6, 8], [7, 8], [8, 8], [9, 8], [10, 8], [6, 10], [7, 10], [8, 10], [9, 10]];
+  for (const [x, y] of flame) px(ctx, ox + x, y, PAL.ember);
+  for (const [x, y] of [[7, 7], [8, 7], [7, 9], [8, 9]]) px(ctx, ox + x, y, PAL.flower);
+}
+
 function drawFloor(ctx, ox) {
   for (let y = 0; y < TILE; y++) {
     for (let x = 0; x < TILE; x++) {
@@ -293,6 +309,7 @@ export function generateTextures(scene) {
   drawPlank(tctx, 12 * TILE);
   drawWall(tctx, 13 * TILE);
   drawFloor(tctx, 14 * TILE);
+  drawFire(tctx, 15 * TILE);
   tex.addCanvas('tiles', tileCanvas);
   const tTex = tex.get('tiles');
   for (let i = 0; i < 16; i++) tTex.add(String(i), 0, i * TILE, 0, TILE, TILE);

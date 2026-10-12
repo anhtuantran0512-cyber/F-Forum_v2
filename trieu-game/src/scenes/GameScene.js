@@ -4,7 +4,7 @@ import {
   buildMap, MAP_W, MAP_H, HOUSE, DAY_LENGTH,
   tideLevel, tideHalfWidth, tideRising, nextLowTide, isFordRow, distToRiver, TIDE_PERIOD,
 } from '../world.js';
-import { Survival, INSOMNIA_AFTER } from '../survival.js';
+import { Survival } from '../survival.js';
 
 const VIEW_W = 1280;
 const VIEW_H = 720;
@@ -16,6 +16,9 @@ const CRAB_COUNT = 3;
 const CRAB_RESPAWN = 25;
 const RESOURCE_RESPAWN = 90;
 const PLATFORM_MAX_D = 5;  // khoảng cách tối đa từ tâm sông mà mực triều cường có thể tới
+const MOSQUITO_RANGE = 8;  // muỗi hoạt động trong phạm vi này quanh sông
+
+const SKILL_NAME = { dive: 'Lặn', herb: 'Thảo dược', fish: 'Chài lưới' };
 
 const COLOR = {
   text: '#f2e6c9',
@@ -27,6 +30,7 @@ const COLOR = {
   hp: '#d64545',
   warn: '#ff8c42',
   good: '#8fd694',
+  gold: '#ffd23f',
 };
 
 export default class GameScene extends Phaser.Scene {
@@ -54,10 +58,16 @@ export default class GameScene extends Phaser.Scene {
     this.attackCD = 0;
     this.fishCD = 0;
     this.gatherCD = 0;
-    this.biteCD = 0;
+    this.mosqT = 15;          // đếm ngược lần muỗi đốt tiếp theo
     this.respawns = [];
     this.log = [];
-    this.inv = { wood: 2, reed: 4, herb: 1, fish: 0, cua: 0, remedy: 0 };
+    this.inv = {
+      wood: 2, reed: 4, herb: 1, fish: 0, cafish: 0, goldfish: 0,
+      cua: 0, remedy: 0, feverMed: 0,
+    };
+    this.skills = { dive: 0, herb: 0, fish: 0 }; // XP; cấp = floor(XP / 20), tối đa 20
+    this.hasSpear = false;
+    this.weapon = 0;          // 0 = mã tấu, 1 = giáo
     this.hud = [];
     this.helpVisible = true;
 
@@ -160,9 +170,9 @@ export default class GameScene extends Phaser.Scene {
       this.txt(16, VIEW_H - 42, 'THÂN NHIỆT', 13, COLOR.temp),
     ];
     this.statValues = [];
-    for (let i = 0; i < 4; i++) this.statValues.push(this.txt(300, VIEW_H - 120 + i * 26, '', 13, COLOR.dim));
+    for (let i = 0; i < 4; i++) this.statValues.push(this.txt(298, VIEW_H - 120 + i * 26, '', 13, COLOR.dim));
 
-    this.invText = this.txt(VIEW_W - 16, VIEW_H - 120, '', 14, COLOR.text, [1, 0]);
+    this.invText = this.txt(VIEW_W - 16, VIEW_H - 262, '', 14, COLOR.text, [1, 0]);
     this.helpText = this.txt(VIEW_W / 2, VIEW_H - 16, '', 13, COLOR.dim, [0.5, 1]);
     this.helpPanel = this.txt(VIEW_W / 2, VIEW_H / 2, '', 16, COLOR.text, [0.5, 0.5]);
     this.deadText = this.txt(VIEW_W / 2, VIEW_H / 2, '', 26, COLOR.hp, [0.5, 0.5]);
@@ -171,18 +181,25 @@ export default class GameScene extends Phaser.Scene {
     this.helpPanel.setText([
       'ĐIỀU KHIỂN',
       '',
-      'WASD / Mũi tên   Đi bộ          Shift   Chạy (tốn thể lực)',
-      'Space            Hái / chặt / cắt  X      Đánh cua (mã tấu)',
-      'F                Câu cá (quay mặt về nước)',
+      'WASD / Mũi tên   Đi bộ            Shift  Chạy (tốn thể lực)',
+      'Space            Hái / chặt / cắt  X      Đánh (vũ khí đang cầm)',
+      'V                Đổi vũ khí (mã tấu / giáo)',
+      'G                Chế giáo (3 gỗ + 2 sậy) — giáo mạnh khi đứng cạnh nước',
+      'F                Câu cá (quay mặt về nước; cá vàng khi nước lớn)',
       'E                Uống nước sông (CÓ THỂ trúng nước độc!)',
-      '1 / 2            Ăn cá sống / ăn cua',
+      '1 / 2 / 3        Ăn cá (nướng ưu tiên) / ăn cua / ăn cá vàng',
+      'K                Dựng bếp lửa (2 gỗ + 2 sậy) — sưởi ấm, nướng cá',
+      'T                Nướng cá sống (đứng gần bếp lửa)',
       'C                Chế Nước Lá Rừng (2 thảo dược + 1 sậy)',
-      'Q                Uống Nước Lá Rừng (chữa mọi bệnh)',
+      'Q                Uống Nước Lá Rừng (chữa bệnh cơ bản)',
+      'M                Pha Thuốc Sốt (3 thảo dược + 1 gỗ, cần Thảo dược Lv10)',
+      'N                Uống Thuốc Sốt (chữa sốt rét)',
       'B                Dựng sàn tre (3 sậy + 2 gỗ) ở ô đang quay mặt',
-      'R                Ngủ (nhà sàn / sàn tre an toàn hơn ngoài trời)',
+      'R                Ngủ (nhà sàn an toàn hơn; ngủ tới lúc triều xuống)',
       'H                Ẩn/hiện bảng này',
       '',
-      'Mẹo: nước triều cường ngập tới ~5 ô từ sông — đừng dựng sàn gần mép nước.',
+      'Mẹo: triều cường ngập tới ~5 ô từ sông — đừng dựng sàn gần mép nước.',
+      'Muỗi bay quanh bờ sông ban đêm — ở trong nhà sàn để tránh sốt rét.',
     ].join('\n'));
     this.helpPanel.setBackgroundColor('rgba(5,18,31,0.85)');
     this.helpPanel.setPadding(20, 16, 20, 16);
@@ -196,7 +213,8 @@ export default class GameScene extends Phaser.Scene {
       W: KC.W, A: KC.A, S: KC.S, D: KC.D,
       SPACE: KC.SPACE, SHIFT: KC.SHIFT,
       X: KC.X, F: KC.F, E: KC.E, Q: KC.Q, C: KC.C, B: KC.B, R: KC.R, H: KC.H,
-      ONE: KC.ONE, TWO: KC.TWO,
+      V: KC.V, G: KC.G, K: KC.K, T: KC.T, M: KC.M, N: KC.N,
+      ONE: KC.ONE, TWO: KC.TWO, THREE: KC.THREE,
     });
   }
 
@@ -213,7 +231,7 @@ export default class GameScene extends Phaser.Scene {
   blocked(tx, ty) {
     if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) return true;
     const t = this.grid[ty][tx];
-    if (t === 'T' || t === 'R' || t === 'X') return true;
+    if (t === 'T' || t === 'R' || t === 'X' || t === 'K') return true;
     return this.isWater(tx, ty);
   }
 
@@ -234,6 +252,27 @@ export default class GameScene extends Phaser.Scene {
     if (!this.collides(this.px, this.py + dy)) this.py += dy;
   }
 
+  // Có loại ô `type` trong bán kính r (Chebyshev) quanh người chơi không?
+  nearTile(type, r) {
+    const { tx, ty } = this.playerTile();
+    for (let y = ty - r; y <= ty + r; y++) {
+      for (let x = tx - r; x <= tx + r; x++) {
+        if (this.grid[y]?.[x] === type) return true;
+      }
+    }
+    return false;
+  }
+
+  nearWater(r) {
+    const { tx, ty } = this.playerTile();
+    for (let y = ty - r; y <= ty + r; y++) {
+      for (let x = tx - r; x <= tx + r; x++) {
+        if (this.isWater(x, y)) return true;
+      }
+    }
+    return false;
+  }
+
   frameFor(tx, ty) {
     if (this.isWater(tx, ty)) return this.animFrame;
     const t = this.grid[ty][tx];
@@ -247,6 +286,7 @@ export default class GameScene extends Phaser.Scene {
       case 'P': return TILE_FRAME.PLANK;
       case 'X': return TILE_FRAME.WALL;
       case 'F': return TILE_FRAME.FLOOR;
+      case 'K': return TILE_FRAME.FIRE;
       default: return TILE_FRAME.WATER0;
     }
   }
@@ -276,10 +316,8 @@ export default class GameScene extends Phaser.Scene {
     return { x, y };
   }
 
-  updateTide(dt) {
-    const prevHalf = this.halfW;
+  updateTide() {
     this.halfW = tideHalfWidth(this.t);
-    this.tideChanged = Math.floor(prevHalf * 4) !== Math.floor(this.halfW * 4);
 
     // Cập nhật ô trong dải ngập (|x - tâm| <= 7). Nước sóng lấp lánh cũng đi qua đây.
     const cx = 32;
@@ -350,6 +388,19 @@ export default class GameScene extends Phaser.Scene {
     if (this.log.length > 30) this.log.length = 30;
   }
 
+  // ---------------- Kỹ năng ----------------
+
+  lvl(k) {
+    return Math.min(20, Math.floor(this.skills[k] / 20));
+  }
+
+  addXp(k, n) {
+    const before = this.lvl(k);
+    this.skills[k] += n;
+    const after = this.lvl(k);
+    if (after > before) this.msg(`Kỹ năng ${SKILL_NAME[k]} lên cấp ${after}!`, COLOR.gold);
+  }
+
   // ---------------- Hành động ----------------
 
   frontTile() {
@@ -387,9 +438,12 @@ export default class GameScene extends Phaser.Scene {
     } else if (t === 'H') {
       this.grid[ty][tx] = 'G';
       this.inv.herb++;
+      let got = 1;
+      if (this.lvl('herb') >= 5 && Math.random() < 0.3) { this.inv.herb++; got = 2; }
+      this.addXp('herb', 5);
       this.survival.stamina -= 2;
       this.respawnLater(tx, ty, 'H', RESOURCE_RESPAWN);
-      this.msg('+1 Thảo dược (hái lá)', COLOR.good);
+      this.msg(`+${got} Thảo dược (hái lá)`, COLOR.good);
       this.refreshCell(tx, ty);
       this.gatherCD = 0.4;
     } else if (t === 'R') {
@@ -401,27 +455,43 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  doBuild() {
+  // Tạo ô đặt được ở vị trí đang quay mặt (dùng cho sàn tre và bếp lửa).
+  placeInFront(newType, cost, okMsg, warnMsg) {
     const { tx, ty } = this.frontTile();
     const t = this.grid[ty]?.[tx];
-    if (!(t === 'G' || t === 'B' || t === 'S')) {
-      this.msg('Không thể dựng ở đây.', COLOR.dim);
-      return;
+    if (!(t === 'G' || t === 'B' || t === 'S')) { this.msg('Không thể đặt ở đây.', COLOR.dim); return false; }
+    if (this.isWater(tx, ty)) { this.msg('Không thể đặt trên nước.', COLOR.dim); return false; }
+    if (this.inv.reed < cost.reed || this.inv.wood < cost.wood) {
+      this.msg(`Cần ${cost.reed} Sậy + ${cost.wood} Gỗ.`, COLOR.warn);
+      return false;
     }
-    if (this.isWater(tx, ty)) { this.msg('Không thể dựng trên nước.', COLOR.dim); return; }
-    if (this.inv.reed < 3 || this.inv.wood < 2) {
-      this.msg('Cần 3 Sậy + 2 Gỗ để dựng sàn tre.', COLOR.warn);
-      return;
-    }
-    this.inv.reed -= 3;
-    this.inv.wood -= 2;
-    this.grid[ty][tx] = 'P';
+    this.inv.reed -= cost.reed;
+    this.inv.wood -= cost.wood;
+    this.grid[ty][tx] = newType;
     this.refreshCell(tx, ty);
-    if (distToRiver(tx) <= PLATFORM_MAX_D) {
-      this.msg('Đã dựng sàn tre — ⚠ ô này ngập khi triều cường!', COLOR.warn);
-    } else {
-      this.msg('Đã dựng sàn tre an toàn (cao hơn mực triều).', COLOR.good);
-    }
+    this.msg(okMsg ?? '', COLOR.good);
+    if (warnMsg) warnMsg(tx, ty);
+    return true;
+  }
+
+  doBuild() {
+    this.placeInFront('P', { reed: 3, wood: 2 }, 'Đã dựng sàn tre.', (tx) => {
+      if (distToRiver(tx) <= PLATFORM_MAX_D) this.msg('⚠ Ô này ngập khi triều cường — sàn sẽ bị cuốn trôi!', COLOR.warn);
+      else this.msg('Sàn tre cao hơn mực triều — an toàn.', COLOR.good);
+    });
+  }
+
+  doFire() {
+    this.placeInFront('K', { reed: 2, wood: 2 }, 'Đã dựng bếp lửa — sưởi ấm và nướng cá.', null);
+  }
+
+  doCook() {
+    if (!this.nearTile('K', 2)) { this.msg('Phải đứng gần bếp lửa để nướng cá.', COLOR.dim); return; }
+    if (this.inv.fish <= 0) { this.msg('Không có cá sống để nướng.', COLOR.dim); return; }
+    this.inv.fish--;
+    this.inv.cafish++;
+    this.addXp('fish', 2);
+    this.msg('Nướng xong cá — an toàn để ăn.', COLOR.good);
   }
 
   doDrinkRiver() {
@@ -437,17 +507,32 @@ export default class GameScene extends Phaser.Scene {
     if (!this.isWater(tx, ty)) { this.msg('Phải quay mặt về phía nước để câu.', COLOR.dim); return; }
     this.fishCD = 1.8;
     this.survival.stamina = Math.max(0, this.survival.stamina - 3);
-    let chance = 0.7;
+    const fl = this.lvl('fish');
+    let chance = Math.min(0.95, 0.7 + 0.02 * fl);
     if (this.survival.insomnia) chance *= 0.5; // thức trắng: tay run, khó câu
     if (Math.random() < chance) {
-      this.inv.fish++;
-      this.msg('Câu được một con cá sông!', COLOR.good);
+      this.addXp('fish', 6);
+      // Cá vàng chỉ xuất hiện khi nước lớn (tài nguyên theo triều).
+      const highTide = tideLevel(this.t) > 0.75;
+      if (highTide && Math.random() < 0.12 + 0.01 * fl) {
+        this.inv.goldfish++;
+        this.msg('Nước lớn — câu được CÁ VÀNG hiếm!', COLOR.gold);
+      } else {
+        this.inv.fish++;
+        this.msg('Câu được một con cá sông!', COLOR.good);
+      }
     } else {
       this.msg(this.survival.insomnia ? 'Tay run quá, cá tuột mất...' : 'Cá đã chạy mất.', COLOR.dim);
     }
   }
 
   doEatFish() {
+    if (this.inv.cafish > 0) {
+      this.inv.cafish--;
+      this.survival.eatCooked();
+      this.msg('Ăn cá nướng — no bụng, an toàn.', COLOR.good);
+      return;
+    }
     if (this.inv.fish <= 0) { this.msg('Không có cá.', COLOR.dim); return; }
     this.inv.fish--;
     this.survival.eatFish();
@@ -461,15 +546,34 @@ export default class GameScene extends Phaser.Scene {
     this.msg('Ăn cua đá — no hơn.', COLOR.good);
   }
 
+  doEatGoldfish() {
+    if (this.inv.goldfish <= 0) { this.msg('Không có cá vàng.', COLOR.dim); return; }
+    this.inv.goldfish--;
+    this.survival.eatGoldfish();
+    this.msg('Ăn cá vàng — no và hồi máu!', COLOR.gold);
+  }
+
   doCraft() {
-    if (this.inv.herb < 2 || this.inv.reed < 1) {
-      this.msg('Cần 2 Thảo dược + 1 Sậy để chế Nước Lá Rừng.', COLOR.warn);
+    const herbNeed = this.lvl('herb') >= 15 ? 1 : 2; // Thảo dược Lv15: chỉ cần 1 thảo dược
+    if (this.inv.herb < herbNeed || this.inv.reed < 1) {
+      this.msg(`Cần ${herbNeed} Thảo dược + 1 Sậy để chế Nước Lá Rừng.`, COLOR.warn);
       return;
     }
-    this.inv.herb -= 2;
+    this.inv.herb -= herbNeed;
     this.inv.reed -= 1;
     this.inv.remedy++;
+    this.addXp('herb', 8);
     this.msg('Đã chế Nước Lá Rừng.', COLOR.good);
+  }
+
+  doFeverMed() {
+    if (this.lvl('herb') < 10) { this.msg('Cần Thảo dược Lv10 để pha Thuốc Sốt.', COLOR.warn); return; }
+    if (this.inv.herb < 3 || this.inv.wood < 1) { this.msg('Cần 3 Thảo dược + 1 Gỗ.', COLOR.warn); return; }
+    this.inv.herb -= 3;
+    this.inv.wood -= 1;
+    this.inv.feverMed++;
+    this.addXp('herb', 12);
+    this.msg('Đã pha Thuốc Sốt (vỏ cây đắng).', COLOR.good);
   }
 
   doRemedy() {
@@ -480,19 +584,54 @@ export default class GameScene extends Phaser.Scene {
     this.msg('Uống Nước Lá Rừng — bệnh đã thuyên giảm.', COLOR.good);
   }
 
+  doFeverCure() {
+    if (!this.survival.malaria) { this.msg('Bạn không bị sốt rét.', COLOR.dim); return; }
+    if (this.inv.feverMed <= 0) { this.msg('Cần Thuốc Sốt (phím M để pha).', COLOR.warn); return; }
+    this.inv.feverMed--;
+    this.survival.cureMalaria();
+    this.msg('Uống Thuốc Sốt — cơn sốt đã lui.', COLOR.good);
+  }
+
+  doCraftSpear() {
+    if (this.hasSpear) { this.msg('Đã có giáo rồi.', COLOR.dim); return; }
+    if (this.inv.wood < 3 || this.inv.reed < 2) { this.msg('Cần 3 Gỗ + 2 Sậy để làm giáo.', COLOR.warn); return; }
+    this.inv.wood -= 3;
+    this.inv.reed -= 2;
+    this.hasSpear = true;
+    this.weapon = 1;
+    this.msg('Đã làm giáo tre. Giáo mạnh dưới nước, yếu trên cạn.', COLOR.good);
+  }
+
+  doSwapWeapon() {
+    if (!this.hasSpear) { this.msg('Chỉ có mã tấu. Chế giáo bằng phím G.', COLOR.dim); return; }
+    this.weapon = 1 - this.weapon;
+    this.msg(`Cầm ${this.weapon === 0 ? 'mã tấu' : 'giáo'}.`, COLOR.text);
+  }
+
+  weaponStats() {
+    const dive = this.lvl('dive');
+    if (this.weapon === 1) {
+      const dmg = 20 + (this.nearWater(1) ? 15 : 0) + (dive >= 10 ? 5 : 0);
+      return { name: 'Giáo', dmg, range: 34, cost: 8 };
+    }
+    const dmg = 25 + (dive >= 5 ? 5 : 0) + (dive >= 10 ? 5 : 0);
+    return { name: 'Mã tấu', dmg, range: 24, cost: 10 };
+  }
+
   doAttack() {
     if (this.attackCD > 0) return;
-    if (this.survival.stamina < 10) { this.msg('Không đủ sức để vung mã tấu.', COLOR.warn); return; }
-    let best = null, bestD = 24;
+    const w = this.weaponStats();
+    if (this.survival.stamina < w.cost) { this.msg('Không đủ sức để vung vũ khí.', COLOR.warn); return; }
+    let best = null, bestD = w.range;
     for (const c of this.crabs) {
       if (!c.alive) continue;
       const d = Phaser.Math.Distance.Between(this.px, this.py - 6, c.x, c.y - 6);
       if (d < bestD) { bestD = d; best = c; }
     }
-    this.attackCD = 0.4;
-    this.survival.stamina -= 10;
-    if (!best) { this.msg('Vung mã tấu vào khoảng không.', COLOR.dim); return; }
-    best.hp -= 25;
+    this.attackCD = 0.45;
+    this.survival.stamina -= w.cost;
+    if (!best) { this.msg(`Vung ${w.name} vào khoảng không.`, COLOR.dim); return; }
+    best.hp -= w.dmg;
     best.spr.setTint(0xff7070);
     this.time.delayedCall(120, () => best.spr.clearTint());
     if (best.hp <= 0) {
@@ -500,9 +639,11 @@ export default class GameScene extends Phaser.Scene {
       best.spr.setVisible(false);
       best.respawnAt = this.t + CRAB_RESPAWN;
       this.inv.cua++;
-      this.msg('Hạ được cua đá! +1 Cua', COLOR.good);
+      this.addXp('dive', 10);
+      this.msg(`Hạ được cua đá bằng ${w.name}! +1 Cua`, COLOR.good);
     } else {
-      this.msg('Chém trúng cua đá!', COLOR.text);
+      this.addXp('dive', 3);
+      this.msg(`${w.name} trúng cua đá (-${w.dmg})!`, COLOR.text);
     }
   }
 
@@ -532,7 +673,7 @@ export default class GameScene extends Phaser.Scene {
             this.msg(`⚠ Ngủ ngoài trời, bị trộm mất 1 ${k}!`, COLOR.warn);
           }
         }
-        if (Math.random() < 0.5) this.msg('Dậy mệt rã rời...', COLOR.warn);
+        this.msg('Dậy mệt rã rời...', COLOR.warn);
       }
       cam.fadeIn(500, 10, 20, 40);
       cam.once(Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE, () => { this.busy = false; });
@@ -549,9 +690,16 @@ export default class GameScene extends Phaser.Scene {
     if (J(k.E)) this.doDrinkRiver();
     if (J(k.ONE)) this.doEatFish();
     if (J(k.TWO)) this.doEatCrab();
+    if (J(k.THREE)) this.doEatGoldfish();
     if (J(k.C)) this.doCraft();
     if (J(k.Q)) this.doRemedy();
+    if (J(k.M)) this.doFeverMed();
+    if (J(k.N)) this.doFeverCure();
     if (J(k.B)) this.doBuild();
+    if (J(k.K)) this.doFire();
+    if (J(k.T)) this.doCook();
+    if (J(k.G)) this.doCraftSpear();
+    if (J(k.V)) this.doSwapWeapon();
     if (J(k.R)) this.doSleep();
   }
 
@@ -599,10 +747,9 @@ export default class GameScene extends Phaser.Scene {
     this.attackCD = Math.max(0, this.attackCD - dt);
     this.fishCD = Math.max(0, this.fishCD - dt);
     this.gatherCD = Math.max(0, this.gatherCD - dt);
-    this.biteCD = Math.max(0, this.biteCD - dt);
     this.wetT = Math.max(0, this.wetT - dt);
 
-    this.updateTide(dt);
+    this.updateTide();
     this.updateWeather(dt);
     this.processRespawns();
 
@@ -615,10 +762,20 @@ export default class GameScene extends Phaser.Scene {
     this.player.setFrame(this.moving ? String(Math.floor(this.walkT / 0.18) % 2) : '0');
     this.player.setFlipX(this.face.x < 0);
 
-    // Sinh tồn
+    // Muỗi: ban đêm ven sông, ngoài nhà, có thể đốt → sốt rét.
     const { tx, ty } = this.playerTile();
     const here = this.grid[ty]?.[tx];
-    const night = this.darkness() > 0.6;
+    const night = this.darkness() > 0.5;
+    if (night && here !== 'F' && distToRiver(tx) <= MOSQUITO_RANGE && !this.survival.malaria) {
+      this.mosqT -= dt;
+      if (this.mosqT <= 0) {
+        this.mosqT = 12 + Math.random() * 10;
+        this.survival.bitten();
+      }
+    }
+
+    // Sinh tồn
+    const nearFire = this.nearTile('K', 2);
     this.survival.update(dt, {
       moving: this.moving,
       sprinting: this.sprinting,
@@ -628,6 +785,7 @@ export default class GameScene extends Phaser.Scene {
       sunny: !this.raining && this.clock().hour >= 6 && this.clock().hour < 18,
       wet: this.wetT > 0,
       sleeping: false,
+      nearFire,
     });
     for (const ev of this.survival.flashEvents()) this.handleSurvivalEvent(ev);
 
@@ -641,13 +799,19 @@ export default class GameScene extends Phaser.Scene {
   handleSurvivalEvent(ev) {
     switch (ev.type) {
       case 'sick':
-        this.msg('Bạn bị CẢM TRIỀU! Thân nhiệt xuống quá thấp. Cần Nước Lá Rừng.', COLOR.hp);
+        this.msg('Bạn bị CẢM TRIỀU! Thân nhiệt xuống quá thấp. Cần Nước Lá Rừng (Q).', COLOR.hp);
         break;
       case 'poison':
-        this.msg('Trúng NƯỚC ĐỘC! Máu đang mất dần. Cần Nước Lá Rừng.', COLOR.hp);
+        this.msg('Trúng NƯỚC ĐỘC! Máu đang mất dần. Cần Nước Lá Rừng (Q).', COLOR.hp);
         break;
       case 'fishpoison':
         this.msg('Ngộ độc cá sống! Buồn nôn, mất máu dần.', COLOR.hp);
+        break;
+      case 'bite':
+        this.msg('Muỗi đốt bạn ven sông ban đêm...', COLOR.dim);
+        break;
+      case 'malaria':
+        this.msg('Bạn bị SỐT RÉT! Sốt cao theo từng cơn. Cần Thuốc Sốt (N).', COLOR.hp);
         break;
       default:
         break;
@@ -770,7 +934,7 @@ export default class GameScene extends Phaser.Scene {
   revive() {
     this.dead = false;
     this.survival.reviveAtHouse();
-    for (const k of ['wood', 'reed', 'herb', 'fish', 'cua', 'remedy']) {
+    for (const k of ['wood', 'reed', 'herb', 'fish', 'cafish', 'goldfish', 'cua', 'remedy', 'feverMed']) {
       this.inv[k] = Math.floor(this.inv[k] / 2);
     }
     this.px = (HOUSE.x + Math.floor(HOUSE.w / 2)) * TILE + 8;
@@ -814,7 +978,7 @@ export default class GameScene extends Phaser.Scene {
     bars.forEach(([v, col], i) => {
       const y = VIEW_H - 120 + i * 26;
       this.drawBar(g, 130, y + 2, 160, 14, v / 100, col);
-      this.statValues[i].setText(`${Math.ceil(v)}`).setX(298);
+      this.statValues[i].setText(`${Math.ceil(v)}`);
     });
 
     // Tình trạng bệnh
@@ -822,8 +986,10 @@ export default class GameScene extends Phaser.Scene {
     if (s.sick) flags.push('CẢM TRIỀU');
     if (s.poisonT > 0) flags.push('NƯỚC ĐỘC');
     if (s.fishPoisonT > 0) flags.push('NGỘ ĐỘC CÁ');
+    if (s.malaria) flags.push(s.feverNow ? 'SỐT RÉT (đang sốt cao!)' : 'SỐT RÉT');
     if (s.insomnia) flags.push('THỨC TRẮNG');
     if (this.wetT > 0) flags.push('ƯỚT');
+    if (this.nearTile('K', 2)) flags.push('ẤM BẾP LỬA');
     this.statusText.setText(flags.join('  ·  '));
 
     // Đồng hồ + thời tiết
@@ -854,21 +1020,23 @@ export default class GameScene extends Phaser.Scene {
       t.setText(entry.text).setColor(entry.color).setAlpha(a);
     }
 
-    // Túi đồ
+    // Túi đồ + vũ khí + kỹ năng
     const iv = this.inv;
+    const w = this.weaponStats();
     this.invText.setText([
       'TÚI ĐỒ',
-      `Gỗ: ${iv.wood}`,
-      `Sậy: ${iv.reed}`,
-      `Thảo dược: ${iv.herb}`,
-      `Cá sống: ${iv.fish}`,
-      `Cua: ${iv.cua}`,
-      `Nước Lá Rừng: ${iv.remedy}`,
+      `Gỗ: ${iv.wood}   Sậy: ${iv.reed}   Thảo dược: ${iv.herb}`,
+      `Cá sống: ${iv.fish}   Cá nướng: ${iv.cafish}   Cá vàng: ${iv.goldfish}`,
+      `Cua: ${iv.cua}   Nước Lá Rừng: ${iv.remedy}   Thuốc Sốt: ${iv.feverMed}`,
+      `Vũ khí: ${w.name}${this.hasSpear ? '  (V đổi)' : ''}`,
+      '',
+      'KỸ NĂNG',
+      `Lặn Lv${this.lvl('dive')}  ·  Thảo dược Lv${this.lvl('herb')}  ·  Chài lưới Lv${this.lvl('fish')}`,
     ].join('\n'));
 
     this.helpPanel.setVisible(this.helpVisible);
-    this.helpText.setText('H: điều khiển · Space: hái/chặt · X: đánh · F: câu · E: uống · B: dựng sàn · R: ngủ');
-    this.deadText.setVisible(this.dead).setText(`BẠN ĐÃ GỤC NGÃ\nĐang được đưa về nhà sàn...`);
+    this.helpText.setText('H: điều khiển · Space: hái/chặt · X: đánh · F: câu · E: uống · B: dựng sàn · K: bếp · R: ngủ');
+    this.deadText.setVisible(this.dead).setText('BẠN ĐÃ GỤC NGÃ\nĐang được đưa về nhà sàn...');
     if (this.dead) {
       g.fillStyle(0x000000, 0.45);
       g.fillRect(0, 0, VIEW_W, VIEW_H);
