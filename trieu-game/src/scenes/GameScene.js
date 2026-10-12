@@ -39,6 +39,7 @@ const TYPE_FRAME = {
   DR: TILE_FRAME.DRY, FLAG: TILE_FRAME.FLAG, TR: TILE_FRAME.TRAP, M: TILE_FRAME.MARSH, C: TILE_FRAME.COC,
 };
 // Âm thanh khi đào / hái / chặt theo loại ô
+const WALK_SEQ = ['1', '2', '3', '2']; // chu kỳ bước: trái, chụm, phải, chụm
 const GATHER_SFX = { T: 'chop', R: 'stone', H: 'gather', C: 'gather', S: 'reed', TR: 'trap' };
 const SWAMP_MOSQ_MIN = 40;  // muỗi đầm lầy đốt mỗi 40–60 giây (ban ngày cũng có)
 const SWAMP_MOSQ_RANGE = 20;
@@ -1117,7 +1118,7 @@ export default class GameScene extends Phaser.Scene {
     // Đồng bộ vị trí nhân vật + hoạt ảnh đi bộ.
     if (this.moving) this.walkT += dt; else this.walkT = 0;
     this.player.setPosition(this.px, this.py);
-    this.player.setFrame(this.moving ? String(Math.floor(this.walkT / 0.18) % 2) : '0');
+    this.player.setFrame(this.moving ? WALK_SEQ[Math.floor(this.walkT / 0.14) % WALK_SEQ.length] : '0');
     this.player.setFlipX(this.face.x < 0);
     this.player.setTint(this.onBoat ? 0xbfe6ff : 0xffffff);
 

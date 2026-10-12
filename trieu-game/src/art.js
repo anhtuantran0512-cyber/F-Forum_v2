@@ -567,8 +567,13 @@ const LEGS_B = [
   '................',
 ];
 
-function playerCells(legs) {
-  const rows = [...PLAYER_BODY, ...legs.slice(0, 8)];
+// bob = true: thân nhấc lên 1px (lúc chân chụm giữa hai bước).
+// Chân đối xứng với LEGS_B (bước sang phải) cho chu kỳ đi bộ 4 khung.
+const LEGS_C = LEGS_B.map((r) => [...r].reverse().join(''));
+
+function playerCells(legs, bob = false) {
+  const body = bob ? [...PLAYER_BODY.slice(1), '................'] : PLAYER_BODY;
+  const rows = [...body, ...legs.slice(0, 8)];
   return rows.map((r) => Array.from({ length: 16 }, (_, x) => {
     const ch = r[x];
     return ch && ch !== '.' && PLAYER_PALETTE[ch] ? PLAYER_PALETTE[ch] : null;
@@ -615,8 +620,8 @@ function snakeCells(f) {
   return c;
 }
 
-function makePlayerFrame(ctx, ox, legs) {
-  drawCells(ctx, ox, playerCells(legs));
+function makePlayerFrame(ctx, ox, legs, bob = false) {
+  drawCells(ctx, ox, playerCells(legs, bob));
 }
 
 // ---------------- Bộ tile ----------------
@@ -657,15 +662,20 @@ export function generateTextures(scene) {
 
   // ---- Nhân vật: 2 frame đi bộ (32x24 gồm 2 ô 16x24) ----
   const pCanvas = document.createElement('canvas');
-  pCanvas.width = 32;
+  pCanvas.width = 64;
   pCanvas.height = 24;
   const pctx = pCanvas.getContext('2d');
+  // 0 đứng yên · 1 bước trái · 2 thân nhấc (chụm) · 3 bước phải
   makePlayerFrame(pctx, 0, LEGS_A);
   makePlayerFrame(pctx, 16, LEGS_B);
+  makePlayerFrame(pctx, 32, LEGS_A, true);
+  makePlayerFrame(pctx, 48, LEGS_C);
   tex.addCanvas('player', pCanvas);
   const pTex = tex.get('player');
   pTex.add('0', 0, 0, 0, 16, 24);
   pTex.add('1', 0, 16, 0, 16, 24);
+  pTex.add('2', 0, 32, 0, 16, 24);
+  pTex.add('3', 0, 48, 0, 16, 24);
 
   // ---- Cua đá: 2 frame (càng nâng / hạ) ----
   const cCanvas = document.createElement('canvas');
