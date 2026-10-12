@@ -6,7 +6,8 @@ const ROW_H = 22;
 
 export default class ListMenu {
   // mk(x, y, str, size, color, origin) -> Text; hudG: Graphics dùng để vẽ nền
-  constructor(mk, { title, rows = 11 }) {
+  // mkImg(x, y, key) -> Image (tuỳ chọn): biểu tượng bên cạnh mỗi dòng.
+  constructor(mk, { title, rows = 11 }, mkImg = null) {
     this.rows = rows;
     this.w = PANEL_W;
     this.h = 48 + rows * ROW_H + 130;
@@ -21,15 +22,21 @@ export default class ListMenu {
 
     this.titleT = mk(this.x + 16, this.y + 12, title, 18, '#ffd23f');
     this.rowT = [];
-    for (let i = 0; i < rows; i++) this.rowT.push(mk(this.x + 22, this.y + 44 + i * ROW_H, '', 14, '#f2e6c9'));
+    this.iconImgs = [];
+    for (let i = 0; i < rows; i++) {
+      this.rowT.push(mk(this.x + 48, this.y + 44 + i * ROW_H, '', 14, '#f2e6c9'));
+      this.iconImgs.push(mkImg ? mkImg(this.x + 24, this.y + 42 + i * ROW_H, 'wood') : null);
+    }
     this.detailT = mk(this.x + 18, this.y + 44 + rows * ROW_H + 10, '', 13, '#f2e6c9');
     this.hintT = mk(this.x + 16, this.y + this.h - 22, '', 12, '#b8ab8a');
     this.texts = [this.titleT, this.hintT, this.detailT, ...this.rowT];
+    this.images = this.iconImgs.filter(Boolean);
     this.setVisible(false);
   }
 
   setVisible(v) {
     for (const t of this.texts) t.setVisible(v);
+    for (const im of this.images) im.setVisible(false);
   }
 
   show(items, hint, title) {
@@ -83,6 +90,15 @@ export default class ListMenu {
       if (sel) {
         g.fillStyle(0x1d5a7a, 0.7);
         g.fillRect(this.x + 12, this.y + 42 + i * ROW_H, this.w - 24, ROW_H - 2);
+      }
+      const im = this.iconImgs[i];
+      if (im) {
+        if (item && item.icon) {
+          im.setFrame(item.icon).setVisible(true);
+          im.setPosition(this.x + 24, this.y + 42 + i * ROW_H);
+        } else {
+          im.setVisible(false);
+        }
       }
       if (!item) { t.setText(''); continue; }
       t.setText(`${sel ? '► ' : '  '}${item.label}`);

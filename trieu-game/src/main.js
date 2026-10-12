@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { generateTextures } from './art.js';
+import { generateIcons } from './icons.js';
 import GameScene from './scenes/GameScene.js';
 
 // Boot: sinh toàn bộ sprite bằng code rồi chuyển sang màn chơi.
@@ -9,6 +10,7 @@ class BootScene extends Phaser.Scene {
   }
   create() {
     generateTextures(this);
+    generateIcons(this);
     this.scene.start('GameScene');
   }
 }

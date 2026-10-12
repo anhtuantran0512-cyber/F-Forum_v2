@@ -272,7 +272,11 @@ export default class GameScene extends Phaser.Scene {
     this.helpPanel.setPadding(20, 16, 20, 16);
 
     // Menu danh sách (chế tạo / xây dựng / túi đồ)
-    this.menu = new ListMenu(this.menuTxt, { title: '', rows: 11 });
+    this.menu = new ListMenu(this.menuTxt, { title: '', rows: 11 }, (x, y, key) => {
+      const im = this.add.image(x, y, 'icons', key).setOrigin(0, 0).setScale(1.5).setDepth(205);
+      this.hud.push(im);
+      return im;
+    });
   }
 
   createInput() {
@@ -907,6 +911,7 @@ export default class GameScene extends Phaser.Scene {
         label: `${recipeName(r)}${r.n > 1 ? ' x' + r.n : ''}`,
         ok: this.canDoNow(r),
         detail: this.recipeInfo(r),
+        icon: r.out,
         data: r,
       }));
     }
@@ -915,6 +920,7 @@ export default class GameScene extends Phaser.Scene {
         const tgt = this.frontTarget(r);
         return {
           label: recipeName(r),
+          icon: 'b_' + r.place,
           ok: this.hasIngredients(r) && tgt.ok,
           detail: `${this.recipeInfo(r)}\nÔ đặt: ${tgt.ok ? 'hợp lệ — Enter để đặt' : tgt.reason}`,
           data: r,
@@ -938,6 +944,7 @@ export default class GameScene extends Phaser.Scene {
       const effects = d.use ? Object.entries(d.use).map(([k, v]) => `${k}:${Array.isArray(v) ? v.join(',') : v}`).join(' ') : '';
       items.push({
         label: `${d.name} x${this.inv[id]}${tag}`,
+        icon: id,
         ok: true,
         detail: `${d.desc}\n${act}${effects ? '  · hiệu quả: ' + effects : ''}`,
         data: id,
