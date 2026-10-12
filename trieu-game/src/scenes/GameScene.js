@@ -3,7 +3,7 @@ import { TILE, TILE_FRAME } from '../art.js';
 import {
   buildMap, MAP_W, MAP_H, HOUSE, DAY_LENGTH,
   tideLevel, tideHalfWidth, tideRising, nextLowTide, isFordRow, distToRiver, TIDE_PERIOD,
-  inSwamp, SWAMP,
+  inSwamp, SWAMP, RIVER_CX,
 } from '../world.js';
 import { Survival } from '../survival.js';
 import { ITEMS, RECIPES, CAT_NAME, recipeName, recipeDesc } from '../items.js';
@@ -165,12 +165,12 @@ export default class GameScene extends Phaser.Scene {
   createEnemies() {
     this.crabs = [];
     for (let i = 0; i < CRAB_COUNT; i++) {
-      const spr = this.add.sprite(0, 0, 'crab').setOrigin(0.5, 1).setDepth(9).setVisible(false);
+      const spr = this.add.sprite(0, 0, 'crab', '0').setOrigin(0.5, 1).setDepth(9).setVisible(false);
       this.crabs.push({ kind: 'crab', spr, x: 0, y: 0, hp: 25, maxHp: 25, alive: false, dir: { x: 1, y: 0 }, turnT: 0, respawnAt: i * 4 + 2, cool: 0, spikeCD: 0 });
     }
     this.snakes = [];
     for (let i = 0; i < SNAKE_COUNT; i++) {
-      const spr = this.add.sprite(0, 0, 'snake').setOrigin(0.5, 0.5).setDepth(8).setVisible(false);
+      const spr = this.add.sprite(0, 0, 'snake', '0').setOrigin(0.5, 0.5).setDepth(8).setVisible(false);
       this.snakes.push({ kind: 'snake', spr, x: 0, y: 0, hp: 30, maxHp: 30, alive: false, dir: { x: 1, y: 0 }, turnT: 0, respawnAt: 8 + i * 10, cool: 0 });
     }
   }
@@ -184,6 +184,9 @@ export default class GameScene extends Phaser.Scene {
       (SWAMP.x1 + 1) * TILE, (SWAMP.y1 + 1) * TILE, 0xc8d6b8, 0,
     ).setDepth(11);
     this.swampMosqT = 10;
+    // Bọt sóng vỗ bờ (world-space) và quầng sáng quanh bếp lửa / đèn xua muỗi
+    this.foamG = this.add.graphics().setDepth(3);
+    this.glowG = this.add.graphics().setDepth(42).setBlendMode(Phaser.BlendModes.ADD);
     // Mưa: các hạt rơi trong khung nhìn.
     this.rainG = this.add.graphics().setDepth(41);
     this.drops = [];
@@ -195,6 +198,10 @@ export default class GameScene extends Phaser.Scene {
   createHud() {
     this.hudG = this.add.graphics().setDepth(200);
     this.hud.push(this.hudG);
+    // Vignette làm tối mép màn hình (chỉ UI camera vẽ, không bị zoom)
+    this.vignette = this.add.image(VIEW_W / 2, VIEW_H / 2, 'vignette')
+      .setDisplaySize(VIEW_W, VIEW_H).setDepth(190);
+    this.hud.push(this.vignette);
 
     // Chữ HUD thường (ẩn khi đang mở menu).
     this.txt = (x, y, str, size = 14, color = COLOR.text, origin = [0, 0]) => {
@@ -221,7 +228,7 @@ export default class GameScene extends Phaser.Scene {
     this.statusText = this.txt(VIEW_W / 2, 52, '', 14, COLOR.warn, [0.5, 0]);
 
     this.logTexts = [];
-    for (let i = 0; i < 5; i++) this.logTexts.push(this.txt(16, 40 + i * 20, '', 14));
+    for (let i = 0; i < 5; i++) this.logTexts.push(this.txt(16, 64 + i * 20, '', 14));
 
     this.txt(16, VIEW_H - 120, 'NO BỤNG', 13, COLOR.hunger);
     this.txt(16, VIEW_H - 94, 'KHÁT', 13, COLOR.thirst);
@@ -230,8 +237,8 @@ export default class GameScene extends Phaser.Scene {
     this.statValues = [];
     for (let i = 0; i < 4; i++) this.statValues.push(this.txt(298, VIEW_H - 120 + i * 26, '', 13, COLOR.dim));
 
-    this.invText = this.txt(VIEW_W - 16, VIEW_H - 16, '', 14, COLOR.text, [1, 1]);
-    this.helpText = this.txt(VIEW_W / 2, VIEW_H - 16, '', 13, COLOR.dim, [0.5, 1]);
+    this.invText = this.txt(VIEW_W - 16, 100, '', 14, COLOR.text, [1, 0]);
+    this.helpText = this.txt(VIEW_W / 2, VIEW_H - 4, '', 13, COLOR.dim, [0.5, 1]);
     this.helpPanel = this.txt(VIEW_W / 2, VIEW_H / 2, '', 15, COLOR.text, [0.5, 0.5]);
     this.deadText = this.txt(VIEW_W / 2, VIEW_H / 2, '', 26, COLOR.hp, [0.5, 0.5]);
     this.deadText.setVisible(false);
@@ -340,6 +347,8 @@ export default class GameScene extends Phaser.Scene {
   frameFor(tx, ty) {
     if (this.isWater(tx, ty)) return this.animFrame;
     const t = this.grid[ty][tx];
+    if (t === 'K') return this.animFrame & 1 ? TILE_FRAME.FIRE2 : TILE_FRAME.FIRE;
+    if (t === 'FLAG') return this.animFrame & 1 ? TILE_FRAME.FLAG2 : TILE_FRAME.FLAG;
     if (TYPE_FRAME[t] !== undefined) return TYPE_FRAME[t];
     switch (t) {
       case 'G': return ((tx * 7 + ty * 13) % 5 === 0) ? TILE_FRAME.GRASS2 : TILE_FRAME.GRASS1;
@@ -351,6 +360,16 @@ export default class GameScene extends Phaser.Scene {
       case 'X': return TILE_FRAME.WALL;
       case 'F': return TILE_FRAME.FLOOR;
       default: return TILE_FRAME.WATER0;
+    }
+  }
+
+  // Làm mới các ô có hoạt hình (lửa, cờ) khi đổi khung.
+  refreshAnimated() {
+    for (let ty = 0; ty < MAP_H; ty++) {
+      for (let tx = 0; tx < MAP_W; tx++) {
+        const t = this.grid[ty][tx];
+        if (t === 'K' || t === 'FLAG') this.refreshCell(tx, ty);
+      }
     }
   }
 
@@ -1022,7 +1041,11 @@ export default class GameScene extends Phaser.Scene {
   update(_time, delta) {
     const dt = Math.min(delta / 1000, 0.05);
     this.animT += dt;
-    if (this.animT >= 0.22) { this.animT = 0; this.animFrame = (this.animFrame + 1) % 4; }
+    if (this.animT >= 0.22) {
+      this.animT = 0;
+      this.animFrame = (this.animFrame + 1) % 4;
+      this.refreshAnimated();
+    }
 
     if (this.dead) {
       this.deadT -= dt;
@@ -1179,7 +1202,7 @@ export default class GameScene extends Phaser.Scene {
       if (!this.collides(c.x + sx * dt, c.y)) c.x += sx * dt;
       if (!this.collides(c.x, c.y + sy * dt)) c.y += sy * dt;
       if (before.x === c.x && before.y === c.y) c.turnT = 0; // kẹt thì đổi hướng
-      c.spr.setPosition(c.x, c.y).setFlipX(sx < 0);
+      c.spr.setPosition(c.x, c.y).setFlipX(sx < 0).setFrame(((this.animFrame >> 1) & 1) ? '1' : '0');
 
       // Cọc nhọn đâm cua đi sát
       const { tx, ty } = { tx: Math.floor(c.x / TILE), ty: Math.floor((c.y - 4) / TILE) };
@@ -1227,7 +1250,7 @@ export default class GameScene extends Phaser.Scene {
       const nx = s.x + sx * dt, ny = s.y + sy * dt;
       if (this.isWater(Math.floor(nx / TILE), Math.floor(s.y / TILE))) s.x = nx;
       if (this.isWater(Math.floor(s.x / TILE), Math.floor(ny / TILE))) s.y = ny;
-      s.spr.setPosition(s.x, s.y).setFlipX(sx < 0);
+      s.spr.setPosition(s.x, s.y).setFlipX(sx < 0).setFrame((this.animFrame & 1) ? '1' : '0');
 
       if (alivePlayer && dist < 12 && s.cool <= 0) {
         s.cool = 2;
@@ -1283,6 +1306,56 @@ export default class GameScene extends Phaser.Scene {
 
   // ---------------- Hiệu ứng ----------------
 
+  // Bọt sóng dọc mép nước: vệt trắng nhấp nhô theo khung nước.
+  updateFoam() {
+    const g = this.foamG;
+    g.clear();
+    const ph = this.animFrame;
+    for (let ty = 0; ty < MAP_H; ty++) {
+      if (isFordRow(ty)) continue;
+      let left = -1;
+      for (let x = RIVER_CX - 10; x <= RIVER_CX; x++) if (this.isWater(x, ty)) { left = x; break; }
+      let right = -1;
+      for (let x = RIVER_CX + 10; x >= RIVER_CX; x--) if (this.isWater(x, ty)) { right = x; break; }
+      if (left >= 0) this.drawShore(g, left * TILE, ty, 1, ph);
+      if (right >= 0) this.drawShore(g, (right + 1) * TILE, ty, -1, ph);
+    }
+  }
+
+  // dir = 1: nước nằm bên phải mép; dir = -1: nước nằm bên trái mép.
+  drawShore(g, edgeX, ty, dir, ph) {
+    for (let seg = 0; seg < 4; seg++) {
+      const wob = (seg * 3 + ty * 5 + ph) % 4;
+      const w = wob === 0 ? 4 : wob === 1 ? 3 : 2;
+      const x = dir > 0 ? edgeX : edgeX - w;
+      g.fillStyle(0xe4f8fb, 0.5);
+      g.fillRect(x, ty * TILE + seg * 4, w, 4);
+      g.fillStyle(0xe4f8fb, 0.18);
+      g.fillRect(dir > 0 ? x + w : x - 1, ty * TILE + seg * 4, 1, 4);
+    }
+  }
+
+  // Quầng sáng ấm quanh bếp lửa (K) và đèn xua muỗi (LM), mạnh khi trời tối.
+  updateGlow() {
+    const g = this.glowG;
+    g.clear();
+    const dk = Phaser.Math.Clamp((this.darkness() - 0.15) / 0.5, 0, 1);
+    if (dk <= 0) return;
+    const v = this.cameras.main.worldView;
+    for (let ty = 0; ty < MAP_H; ty++) {
+      for (let tx = 0; tx < MAP_W; tx++) {
+        const t = this.grid[ty][tx];
+        if (t !== 'K' && t !== 'LM') continue;
+        const cx = (tx + 0.5) * TILE, cy = (ty + 0.5) * TILE;
+        if (cx < v.x - 60 || cx > v.right + 60 || cy < v.y - 60 || cy > v.bottom + 60) continue;
+        const k = dk * (0.85 + 0.15 * Math.sin(this.t * 9 + tx * 1.7));
+        g.fillStyle(0xff9a3c, 0.05 * k); g.fillCircle(cx, cy, 44);
+        g.fillStyle(0xff9a3c, 0.08 * k); g.fillCircle(cx, cy, 28);
+        g.fillStyle(0xffd23f, 0.12 * k); g.fillCircle(cx, cy, 13);
+      }
+    }
+  }
+
   updateFx(dt) {
     const cam = this.cameras.main;
     const v = cam.worldView;
@@ -1297,6 +1370,9 @@ export default class GameScene extends Phaser.Scene {
     // Sương mù động: đậm nhạt theo thời gian, dày hơn khi mưa
     const fogA = 0.16 + 0.1 * Math.sin(this.t / 9) + (this.raining ? 0.08 : 0);
     this.fog.setAlpha(Phaser.Math.Clamp(fogA, 0, 0.4));
+
+    this.updateFoam();
+    this.updateGlow();
 
     // Mưa
     this.rainG.clear();
@@ -1384,6 +1460,15 @@ export default class GameScene extends Phaser.Scene {
       this.deadText.setVisible(false);
       return;
     }
+
+    // Nền các bảng (đọc dễ hơn trên nền cỏ và nước)
+    g.fillStyle(0x05121f, 0.55);
+    g.fillRoundedRect(8, 8, 200, 44, 6);
+    g.fillRoundedRect(8, 58, 440, 108, 6);
+    g.fillRoundedRect(8, VIEW_H - 136, 300, 128, 6);
+    const invLines = this.invLines().split('\n').length;
+    g.fillRoundedRect(VIEW_W - 346, 92, 338, invLines * 19 + 14, 6);
+    g.fillRect(0, VIEW_H - 22, VIEW_W, 22);
 
     // Máu (góc trên trái)
     this.drawBar(g, 16, 36, 180, 10, s.hp / 100, COLOR.hp);

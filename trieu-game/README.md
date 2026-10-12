@@ -55,6 +55,13 @@ Dữ liệu là một bảng duy nhất: thêm vật phẩm/công thức chỉ c
 
 Một số công thức cần trạm: **Bếp lửa** (K) cho than, trà gừng, cá nướng, cua nướng, canh ốc; **Giàn phơi** (DR) cho cá khô. Thuốc Sốt cần Thảo dược Lv10.
 
+## Đồ họa
+
+- Tile 16px có nhiều tông, ánh sáng chiếu từ trên-trái; nước có sóng, lấp lánh và bọt vỗ bờ (chạy theo mực triều).
+- Lửa bếp và cờ làng nhấp nháy; quầng sáng ấm quanh bếp và đèn xua muỗi khi trời tối.
+- Nhân vật, cua và rắn có viền tối; cua và rắn có 2 khung hình chuyển động.
+- Vignette làm tối mép màn hình; bảng HUD có nền mờ để dễ đọc.
+
 ## Vùng Đầm Lầy (Đợt 4)
 
 Vùng tây bắc (góc trên bên trái bản đồ, ngay phía bắc nhà sàn). Bùn lầy làm chậm di chuyển (60%), cây cốc cho Rễ cốc và hồi sinh sau 90 giây, sương mù động phủ lên vùng và dày hơn khi mưa (sương dày có thêm rễ cốc). Muỗi đầm lầy đốt cả ban ngày, mỗi 40–60 giây, 25% nhiễm sốt rét; đèn xua muỗi vẫn bảo vệ được trong bán kính 4 ô.
