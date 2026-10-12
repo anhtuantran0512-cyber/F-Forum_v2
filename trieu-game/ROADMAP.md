@@ -16,6 +16,10 @@ Các mục cần server (clan, raid, PvP, bảng xếp hạng, chợ giữa ngư
 | 9 | Boss Giao Long (một người chơi, theo triều đỏ) | Chưa làm |
 | 10 | Hang ngầm dưới sông | Chưa làm |
 
+## Đồ họa 1080p (đã làm)
+- Canvas 1920×1080, thế giới zoom ×4, giao diện phóng ×1.5 (chữ render ở độ phân giải 1.5).
+- Bảng điều khiển có nút Đóng, đóng bằng H hoặc Esc.
+
 ## Đợt 5 — Chợ nổi (đã làm)
 - Chợ ở bờ đông sông (x 44–53, y 26–33): vùng an toàn, cua không vào và không cắn người chơi trong chợ, không spawn cua trong chợ.
 - 3 thương lái (Bà Hến, Ông Ghe, Chị Lụa), đổi đồ lấy đồ, không có tiền. Mỗi ngày bày 3 kèo chọn từ kho 6 kèo; mỗi kèo đổi tối đa 2 lần/ngày.

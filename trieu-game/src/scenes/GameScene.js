@@ -37,9 +37,13 @@ import {
 } from '../market.js';
 import { getSettings, setSettings } from '../settings.js';
 
+// Khung tọa độ giao diện (HUD, menu) giữ cố định 1280x720; camera UI phóng lên 1.5 để lấp đầy 1920x1080.
 const VIEW_W = 1280;
 const VIEW_H = 720;
-const ZOOM = 3;
+const UI_SCALE = 1.5;
+const CANVAS_W = 1920;
+const CANVAS_H = 1080;
+const ZOOM = 4; // thế giới: pixel art phóng nguyên bội 4 trên 1080p
 const SEED = 2026;
 
 const SKILL_NAME = { dive: 'Lặn', herb: 'Thảo dược', fish: 'Chài lưới' };
@@ -135,7 +139,9 @@ export default class GameScene extends Phaser.Scene {
     cam.startFollow(this.player, true, 0.12, 0.12);
     cam.setBackgroundColor('#05121f');
 
-    this.uiCam = this.cameras.add(0, 0, VIEW_W, VIEW_H);
+    this.uiCam = this.cameras.add(0, 0, CANVAS_W, CANVAS_H);
+    this.uiCam.setOrigin(0, 0);
+    this.uiCam.setZoom(UI_SCALE);
     this.uiCam.setScroll(0, 0);
     cam.ignore(this.hud);
     const hudSet = new Set(this.hud);
@@ -243,7 +249,7 @@ export default class GameScene extends Phaser.Scene {
     this.txt = (x, y, str, size = 14, color = COLOR.text, origin = [0, 0]) => {
       const t = this.add.text(x, y, str, {
         fontFamily: 'monospace', fontSize: `${size}px`, color, stroke: '#05121f', strokeThickness: 3,
-      }).setOrigin(origin[0], origin[1]).setDepth(200);
+      }).setOrigin(origin[0], origin[1]).setDepth(200).setResolution(UI_SCALE);
       this.hud.push(t);
       this.hudTexts.push(t);
       return t;
@@ -252,7 +258,7 @@ export default class GameScene extends Phaser.Scene {
     this.menuTxt = (x, y, str, size = 14, color = COLOR.text, origin = [0, 0]) => {
       const t = this.add.text(x, y, str, {
         fontFamily: 'monospace', fontSize: `${size}px`, color, stroke: '#05121f', strokeThickness: 3,
-      }).setOrigin(origin[0], origin[1]).setDepth(205);
+      }).setOrigin(origin[0], origin[1]).setDepth(205).setResolution(UI_SCALE);
       this.hud.push(t);
       return t;
     };
@@ -292,13 +298,22 @@ export default class GameScene extends Phaser.Scene {
       '1 / 2 / 3       Ăn nhanh: cá / cua / cá vàng     T  Nướng cá (gần bếp)',
       'Q / N           Uống Nước Lá Rừng / Thuốc Sốt',
       'R               Ngủ (nhà sàn an toàn hơn; ngủ tới lúc triều xuống)',
-      'H               Ẩn/hiện bảng này',
+      'H / Esc         Ẩn/hiện bảng này (hoặc bấm [ Đóng ])',
       '',
       'Trong menu: ↑↓ hoặc W/S chọn · Enter thực hiện · Esc hoặc phím mở để đóng.',
       'Mẹo: triều cường ngập ~5 ô từ sông; muỗi bay ven sông ban đêm (đèn xua muỗi giúp).',
     ].join('\n'));
     this.helpPanel.setBackgroundColor('rgba(5,18,31,0.85)');
     this.helpPanel.setPadding(20, 16, 20, 16);
+
+    // Nút Đóng ở góc dưới-phải bảng điều khiển (bấm để ẩn; cũng dùng H hoặc Esc).
+    const hb = this.helpPanel.getBounds();
+    this.helpClose = this.txt(0, 0, '[ Đóng ]', 13, '#ffd23f', [1, 1])
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => { this.helpVisible = false; })
+      .on('pointerover', () => this.helpClose.setColor('#fff3c4'))
+      .on('pointerout', () => this.helpClose.setColor('#ffd23f'));
+    this.helpClose.setPosition(hb.right - 14, hb.bottom - 12);
 
     // Menu danh sách (chế tạo / xây dựng / túi đồ)
     this.menu = new ListMenu(this.menuTxt, { title: '', rows: 11 }, (x, y, key) => {
@@ -1095,6 +1110,7 @@ export default class GameScene extends Phaser.Scene {
     const k = this.keys;
     const J = Phaser.Input.Keyboard.JustDown;
     if (J(k.H)) this.helpVisible = !this.helpVisible;
+    if (J(k.ESC)) this.helpVisible = false;
     if (J(k.C)) this.toggleMenu('craft');
     if (J(k.B)) this.toggleMenu('build');
     if (J(k.I)) this.toggleMenu('inv');
@@ -1623,6 +1639,7 @@ export default class GameScene extends Phaser.Scene {
     if (menuOpen) {
       this.menu.render(g);
       this.helpPanel.setVisible(false);
+      this.helpClose.setVisible(false);
       this.deadText.setVisible(false);
       return;
     }
@@ -1694,6 +1711,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.invText.setText(this.invLines());
     this.helpPanel.setVisible(this.helpVisible);
+    this.helpClose.setVisible(this.helpVisible);
     this.helpText.setText('H: điều khiển · C: chế tạo · B: xây dựng · I: túi đồ · Space: hái · X: đánh · F: câu · E: uống · R: ngủ');
     this.deadText.setVisible(this.dead).setText('BẠN ĐÃ GỤC NGÃ\nĐang được đưa về nhà sàn...');
     if (this.dead) {

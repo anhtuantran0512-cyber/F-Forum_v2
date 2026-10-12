@@ -62,6 +62,11 @@ Một số công thức cần trạm: **Bếp lửa** (K) cho than, trà gừng,
 - Nhân vật, cua và rắn có viền tối; cua và rắn có 2 khung hình chuyển động.
 - Vignette làm tối mép màn hình; bảng HUD có nền mờ để dễ đọc.
 
+## Độ phân giải
+
+- Khung hình 1920×1080. Thế giới phóng ×4 (nguyên bội, pixel art sắc nét); giao diện giữ tọa độ 1280×720 và được phóng ×1.5 nên không đổi bố cục.
+- Bảng điều khiển: bấm nút **[ Đóng ]** ở góc dưới-phải, hoặc nhấn **H** / **Esc**.
+
 ## Chợ Nổi (Đợt 5)
 
 - Chợ ở bờ đông sông, vùng an toàn: cua không vào được. Đứng cạnh thương lái và nhấn **E** để mở menu đổi đồ.
