@@ -9,6 +9,8 @@ import { Survival } from '../survival.js';
 import { ITEMS, RECIPES, CAT_NAME, recipeName, recipeDesc } from '../items.js';
 import ListMenu from '../ui/menu.js';
 import { saveGame, loadSave, clearSave, applySurvival } from '../save.js';
+import { Sfx } from '../sfx.js';
+import { getSettings, setSettings } from '../settings.js';
 
 const VIEW_W = 1280;
 const VIEW_H = 720;
@@ -36,6 +38,8 @@ const TYPE_FRAME = {
   P: TILE_FRAME.PLANK, K: TILE_FRAME.FIRE, SP: TILE_FRAME.SPIKE, LM: TILE_FRAME.LAMP,
   DR: TILE_FRAME.DRY, FLAG: TILE_FRAME.FLAG, TR: TILE_FRAME.TRAP, M: TILE_FRAME.MARSH, C: TILE_FRAME.COC,
 };
+// Âm thanh khi đào / hái / chặt theo loại ô
+const GATHER_SFX = { T: 'chop', R: 'stone', H: 'gather', C: 'gather', S: 'reed', TR: 'trap' };
 const SWAMP_MOSQ_MIN = 40;  // muỗi đầm lầy đốt mỗi 40–60 giây (ban ngày cũng có)
 const SWAMP_MOSQ_RANGE = 20;
 const MARSH_SLOW = 0.6;     // đi trên bùn lầy chậm hơn
@@ -102,12 +106,15 @@ export default class GameScene extends Phaser.Scene {
     this.hud = [];
     this.hudTexts = [];
 
+    this.sfx = new Sfx();
+    this.quality = getSettings().quality;
     this.createTiles();
     this.createPlayer();
     this.createEnemies();
     this.createFx();
     this.createHud();
     this.createInput();
+    this.input.keyboard.on('keydown', () => this.sfx.resume());
 
     // Camera chính: zoom pixel, theo người chơi. UI camera: không zoom.
     const cam = this.cameras.main;
@@ -200,7 +207,7 @@ export default class GameScene extends Phaser.Scene {
     this.hud.push(this.hudG);
     // Vignette làm tối mép màn hình (chỉ UI camera vẽ, không bị zoom)
     this.vignette = this.add.image(VIEW_W / 2, VIEW_H / 2, 'vignette')
-      .setDisplaySize(VIEW_W, VIEW_H).setDepth(190);
+      .setDisplaySize(VIEW_W, VIEW_H).setDepth(190).setVisible(this.quality === 'high');
     this.hud.push(this.vignette);
 
     // Chữ HUD thường (ẩn khi đang mở menu).
@@ -276,7 +283,7 @@ export default class GameScene extends Phaser.Scene {
       W: KC.W, A: KC.A, S: KC.S, D: KC.D,
       SPACE: KC.SPACE, SHIFT: KC.SHIFT, ENTER: KC.ENTER, ESC: KC.ESC,
       X: KC.X, F: KC.F, E: KC.E, Q: KC.Q, C: KC.C, B: KC.B, R: KC.R, H: KC.H,
-      V: KC.V, I: KC.I, O: KC.O, T: KC.T, N: KC.N, P: KC.P, BACKSPACE: KC.BACKSPACE,
+      V: KC.V, I: KC.I, O: KC.O, T: KC.T, N: KC.N, P: KC.P, BACKSPACE: KC.BACKSPACE, M: KC.M, G: KC.G,
       ONE: KC.ONE, TWO: KC.TWO, THREE: KC.THREE,
     });
   }
@@ -453,6 +460,7 @@ export default class GameScene extends Phaser.Scene {
     this.weatherT -= dt;
     if (this.weatherT <= 0) {
       this.raining = !this.raining;
+      if (this.raining) this.sfx.play('rain');
       if (this.raining) {
         this.weatherT = 25 + Math.random() * 15;
         this.msg('Trời bắt đầu mưa lớn...', COLOR.thirst);
@@ -546,12 +554,14 @@ export default class GameScene extends Phaser.Scene {
     const { tx, ty } = this.frontTile();
     const t = this.grid[ty]?.[tx];
     const dive = this.lvl('dive');
+    if (GATHER_SFX[t]) this.sfx.play(GATHER_SFX[t]);
     if (t === 'TR') {
       const key = `${tx},${ty}`;
       const tr = this.traps.get(key) ?? { catch: 0, timer: 0 };
       this.traps.set(key, tr);
       if (tr.catch > 0) {
         this.inv.tom += tr.catch;
+        this.sfx.play('craft');
         this.msg(`Thu bẫy: +${tr.catch} Tôm sông`, COLOR.good);
         tr.catch = 0;
       } else {
@@ -664,6 +674,7 @@ export default class GameScene extends Phaser.Scene {
       if (def.waterBonus && this.nearWater(1)) dmg += def.waterBonus;
     }
     best.hp -= dmg;
+    this.sfx.play('hit');
     best.spr.setTint(0xff7070);
     const target = best;
     this.time.delayedCall(120, () => target.spr.clearTint());
@@ -732,11 +743,13 @@ export default class GameScene extends Phaser.Scene {
   doDrinkRiver() {
     const { tx, ty } = this.frontTile();
     if (!this.isWater(tx, ty)) { this.msg('Quay mặt về phía nước để uống.', COLOR.dim); return; }
+    this.sfx.play('splash');
     this.survival.drinkRiver();
     this.msg('Uống nước sông chưa lọc...', COLOR.thirst);
   }
 
   toggleBoat() {
+    this.sfx.play('boat');
     if (this.onBoat) {
       if (this.isWater(Math.floor(this.px / TILE), Math.floor((this.py - 2) / TILE))) {
         this.msg('Phải cập bờ trước khi xuống thuyền.', COLOR.warn);
@@ -798,6 +811,7 @@ export default class GameScene extends Phaser.Scene {
     if (!this.skillOk(r)) { this.msg('Chưa đủ cấp kỹ năng.', COLOR.warn); return false; }
     this.consume(r);
     this.inv[r.out] += r.n;
+    this.sfx.play('craft');
     if (['medicine', 'food'].includes(ITEMS[r.out].cat)) this.addXp('herb', 2);
     this.msg(`Đã chế ${ITEMS[r.out].name}${r.n > 1 ? ' x' + r.n : ''}.`, COLOR.good);
     return true;
@@ -811,6 +825,7 @@ export default class GameScene extends Phaser.Scene {
     this.grid[tgt.ty][tgt.tx] = r.place;
     this.refreshCell(tgt.tx, tgt.ty);
     if (r.place === 'TR') this.traps.set(`${tgt.tx},${tgt.ty}`, { catch: 0, timer: 0 });
+    this.sfx.play('build');
     this.msg(`Đã dựng ${r.name}.`, COLOR.good);
     if (r.place === 'P') {
       if (distToRiver(tgt.tx) <= PLATFORM_MAX_D) this.msg('⚠ Ô này ngập khi triều cường — sàn sẽ bị cuốn trôi!', COLOR.warn);
@@ -821,6 +836,7 @@ export default class GameScene extends Phaser.Scene {
 
   // Dùng vật phẩm (ăn/uống/thuốc). Trả về true nếu đã dùng.
   useItem(id) {
+    this.sfx.play(ITEMS[id]?.cat === 'food' ? 'eat' : 'craft');
     const def = ITEMS[id];
     if (!def?.use || this.inv[id] <= 0) return false;
     if (id === 'remedy' && !this.survival.ill) { this.msg('Bạn không đang đau ốm.', COLOR.dim); return false; }
@@ -968,8 +984,8 @@ export default class GameScene extends Phaser.Scene {
   handleMenuInput() {
     const J = Phaser.Input.Keyboard.JustDown;
     const k = this.keys, c = this.cursors;
-    if (J(c.up) || J(k.W)) this.menu.move(-1);
-    if (J(c.down) || J(k.S)) this.menu.move(1);
+    if (J(c.up) || J(k.W)) { this.menu.move(-1); this.sfx.play('ui'); }
+    if (J(c.down) || J(k.S)) { this.menu.move(1); this.sfx.play('ui'); }
     if (J(k.ENTER)) this.menuActivate();
     if (J(k.ESC)) this.closeMenu();
     if (J(k.C)) this.toggleMenu('craft');
@@ -1000,6 +1016,18 @@ export default class GameScene extends Phaser.Scene {
     if (J(k.T)) this.cookFish();
     if (J(k.R)) this.doSleep();
     if (J(k.P)) { saveGame(this); this.msg('Đã lưu tiến trình.', COLOR.good); }
+    if (J(k.M)) {
+      const muted = this.sfx.toggleMute();
+      this.msg(muted ? 'Đã tắt âm thanh (M để bật lại).' : 'Đã bật âm thanh.', COLOR.dim);
+    }
+    if (J(k.G)) {
+      this.quality = this.quality === 'high' ? 'low' : 'high';
+      setSettings({ quality: this.quality });
+      this.vignette.setVisible(this.quality === 'high');
+      this.foamG.clear();
+      this.glowG.clear();
+      this.msg(this.quality === 'high' ? 'Đồ họa: cao (bọt sóng, quầng sáng).' : 'Đồ họa: thấp (tắt bọt sóng, quầng sáng, vignette).', COLOR.dim);
+    }
     if (J(k.BACKSPACE)) { clearSave(); window.location.reload(); }
   }
 
@@ -1140,9 +1168,11 @@ export default class GameScene extends Phaser.Scene {
         this.msg('Ngộ độc cá sống! Buồn nôn, mất máu dần.', COLOR.hp);
         break;
       case 'bite':
+        this.sfx.play('bite');
         this.msg('Muỗi đốt bạn ven sông ban đêm...', COLOR.dim);
         break;
       case 'malaria':
+        this.sfx.play('malaria');
         this.msg('Bạn bị SỐT RÉT! Sốt cao theo từng cơn. Cần Thuốc Sốt (N).', COLOR.hp);
         break;
       default:
@@ -1217,6 +1247,7 @@ export default class GameScene extends Phaser.Scene {
         c.cool = 1.5;
         const dmg = 8 * this.armorMods().dmgTaken;
         this.survival.hp = Math.max(0, this.survival.hp - dmg);
+        this.sfx.play('hurt');
         this.msg(`Cua đá kẹp bạn! -${Math.round(dmg)} máu`, COLOR.hp);
         this.cameras.main.shake(120, 0.003);
       }
@@ -1257,6 +1288,7 @@ export default class GameScene extends Phaser.Scene {
         const dmg = 10 * this.armorMods().dmgTaken;
         this.survival.hp = Math.max(0, this.survival.hp - dmg);
         this.survival.addStatus('poison', 6);
+        this.sfx.play('hurt');
         this.msg(`Rắn nước cắn bạn! -${Math.round(dmg)} máu và trúng độc`, COLOR.hp);
         this.cameras.main.shake(150, 0.004);
       }
@@ -1306,10 +1338,22 @@ export default class GameScene extends Phaser.Scene {
 
   // ---------------- Hiệu ứng ----------------
 
+  // Âm nền: mưa (ngoài nhà), bếp lửa (gần K), tiếng sông (gần nước).
+  updateAmbient() {
+    const { tx, ty } = this.playerTile();
+    const sheltered = this.grid[ty]?.[tx] === 'F';
+    this.sfx.setAmbient({
+      rain: this.raining && !sheltered ? 1 : 0,
+      fire: this.nearTile('K', 3) ? 1 : 0,
+      river: distToRiver(tx) <= 6 ? 1 : 0,
+    });
+  }
+
   // Bọt sóng dọc mép nước: vệt trắng nhấp nhô theo khung nước.
   updateFoam() {
     const g = this.foamG;
     g.clear();
+    if (this.quality !== 'high') return;
     const ph = this.animFrame;
     for (let ty = 0; ty < MAP_H; ty++) {
       if (isFordRow(ty)) continue;
@@ -1339,6 +1383,7 @@ export default class GameScene extends Phaser.Scene {
   updateGlow() {
     const g = this.glowG;
     g.clear();
+    if (this.quality !== 'high') return;
     const dk = Phaser.Math.Clamp((this.darkness() - 0.15) / 0.5, 0, 1);
     if (dk <= 0) return;
     const v = this.cameras.main.worldView;
@@ -1373,6 +1418,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.updateFoam();
     this.updateGlow();
+    this.updateAmbient();
 
     // Mưa
     this.rainG.clear();
@@ -1399,6 +1445,7 @@ export default class GameScene extends Phaser.Scene {
   // ---------------- Chết / hồi sinh ----------------
 
   die() {
+    this.sfx.play('death');
     this.dead = true;
     this.deadT = 3.5;
     this.onBoat = false;
