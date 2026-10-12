@@ -26,10 +26,12 @@ export const ITEMS = {
   shell:   { name: 'Ốc hến', cat: 'resource', desc: 'Ốc hến ở bãi cạn, chỉ mò được lúc triều thấp.' },
   charcoal:{ name: 'Than củi', cat: 'resource', desc: 'Than nung từ gỗ bên bếp lửa.' },
   rootcoc: { name: 'Rễ cốc', cat: 'resource', desc: 'Rễ cây cốc mọc trong đầm lầy. Nguyên liệu thuốc đầm.' },
+  muoi:    { name: 'Muối hạt', cat: 'resource', desc: 'Muối biển từ ghe buôn. Dùng để ướp cá.' },
 
   // ---- Hiếm (theo triều / kỹ năng) ----
   pearl:   { name: 'Ngọc trai', cat: 'rare', desc: 'Hiếm — chỉ mò được trên bãi cạn lúc triều thấp.' },
   coral:   { name: 'San hô', cat: 'rare', desc: 'San hô đá, rơi từ tảng đá khi Lặn Lv5+.' },
+  lua:     { name: 'Lụa ghe', cat: 'rare', desc: 'Lụa mềm từ ghe buôn phương Bắc. Hiếm, thường chỉ có ở chợ.' },
 
   // ---- Thức ăn ----
   fish:    { name: 'Cá sống', cat: 'food', desc: 'Cá sông tươi. Ăn sống có thể ngộ độc.',
@@ -39,6 +41,7 @@ export const ITEMS = {
   cuanuong:{ name: 'Cua nướng', cat: 'food', desc: 'Cua nướng thơm, ấm bụng.', use: { hunger: 45, temp: 5 } },
   canhoc:  { name: 'Canh ốc', cat: 'food', desc: 'Canh ốc hến nóng, bù nước và ấm người.', use: { hunger: 30, thirst: 20, temp: 6 } },
   cakho:   { name: 'Cá khô', cat: 'food', desc: 'Cá phơi khô trên giàn. Để được lâu, no bền.', use: { hunger: 30, stamina: 20 } },
+  camuoi:  { name: 'Cá muối', cat: 'food', desc: 'Cá ướp muối rồi nướng. No lâu hơn cá nướng.', use: { hunger: 45 } },
   tom:     { name: 'Tôm sông', cat: 'food', desc: 'Tôm sông từ bẫy tre. Ăn sống khá an toàn.', use: { hunger: 18, stamina: 5 } },
   thitran: { name: 'Thịt rắn nước', cat: 'food', desc: 'Thịt rắn sông, bổ sức.', use: { hunger: 30, stamina: 15 } },
   cagold:  { name: 'Cá vàng', cat: 'rare', desc: 'Cá vàng hiếm, chỉ câu được lúc nước lớn. No và hồi máu.',
@@ -71,6 +74,7 @@ export const ITEMS = {
   nonla:   { name: 'Nón lá', cat: 'armor', slot: 'head', desc: 'Che mưa: giảm lạnh khi mưa 40%.', mods: { rainTemp: 0.6 } },
   aotoi:   { name: 'Áo tơi', cat: 'armor', slot: 'body', desc: 'Áo mưa lá: giảm lạnh 70%, giảm ướt 50%.', mods: { rainTemp: 0.3, wet: 0.5 } },
   aogiap:  { name: 'Áo giáp tre', cat: 'armor', slot: 'body', desc: 'Giáp tre đan dày: nhận sát thương từ cua/rắn giảm 50%.', mods: { dmgTaken: 0.5 } },
+  aolua:   { name: 'Áo lụa', cat: 'armor', slot: 'body', desc: 'Áo lụa nhẹ: nhận sát thương giảm 20%, đi nhanh hơn 10%.', mods: { dmgTaken: 0.8, speed: 1.1 } },
   giaygo:  { name: 'Giày gỗ', cat: 'armor', slot: 'feet', desc: 'Giày gỗ đi trên bùn nhanh hơn 8%.', mods: { speed: 1.08 } },
 
   // ---- Phương tiện ----
@@ -93,6 +97,7 @@ export const RECIPES = [
   { out: 'nonla', n: 1, need: { reed: 3, vine: 1 } },
   { out: 'aotoi', n: 1, need: { reed: 4, vine: 2 } },
   { out: 'aogiap', n: 1, need: { wood: 5, vine: 2 } },
+  { out: 'aolua', n: 1, need: { lua: 2, vine: 1 } },
   { out: 'giaygo', n: 1, need: { wood: 3, vine: 1 } },
   { out: 'boat', n: 1, need: { wood: 6, reed: 4, vine: 2 } },
 
@@ -111,6 +116,7 @@ export const RECIPES = [
   { out: 'cuanuong', n: 1, need: { cua: 1 }, station: 'K' },
   { out: 'canhoc', n: 1, need: { shell: 2, herb: 1 }, station: 'K' },
   { out: 'cakho', n: 1, need: { fish: 2, wood: 1 }, station: 'DR' },
+  { out: 'camuoi', n: 1, need: { fish: 1, muoi: 1 }, station: 'K' },
 
   // Xây dựng (đặt xuống ô đang quay mặt — mở bằng phím B)
   { build: true, place: 'P', name: 'Sàn tre', desc: 'Sàn tre cao. Đặt gần sông sẽ bị triều cường cuốn trôi.', need: { reed: 3, wood: 2 } },

@@ -28,8 +28,10 @@ export const TILE_FRAME = {
   COC: 22,
   FIRE2: 23, // khung 2 của lửa (nhấp nháy)
   FLAG2: 24, // khung 2 của cờ (phất gió)
+  DECK: 25,  // sàn chợ
+  STALL: 26, // quầy hàng của thương lái
 };
-export const TILE_COUNT = 25;
+export const TILE_COUNT = 27;
 
 const PAL = {
   deep: '#0a2e4d',
@@ -402,6 +404,21 @@ function drawFloor(ctx, ox) {
 }
 
 // Bếp lửa: 2 khung (f = 0/1) để ngọn lửa nhấp nháy.
+// Quầy hàng: mái bạt sọc đỏ–kem ở trên, bàn gỗ tối ở dưới.
+function drawStall(ctx, ox) {
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      let col;
+      if (y < 6) col = (Math.floor(x / 4) % 2 === 0) ? PAL.emberDark : PAL.wallLight;
+      else if (y === 6) col = PAL.outline;
+      else if (y === 15) col = PAL.outline;
+      else if (x === 0 || x === 15) col = PAL.plankLine;
+      else col = PAL.plankA;
+      px(ctx, ox + x, y, col);
+    }
+  }
+}
+
 function drawFire(ctx, ox, f) {
   drawGrass(ctx, ox, 0);
   // Vòng đá có khối sáng/tối
@@ -656,6 +673,8 @@ export function generateTextures(scene) {
   drawCoc(tctx, 22 * TILE);
   drawFire(tctx, 23 * TILE, 1);
   drawFlag(tctx, 24 * TILE, 1);
+  drawPlank(tctx, 25 * TILE);
+  drawStall(tctx, 26 * TILE);
   tex.addCanvas('tiles', tileCanvas);
   const tTex = tex.get('tiles');
   for (let i = 0; i < TILE_COUNT; i++) tTex.add(String(i), 0, i * TILE, 0, TILE, TILE);

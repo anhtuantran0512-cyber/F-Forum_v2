@@ -20,6 +20,11 @@ export const SWAMP = { x0: 0, x1: 15, y0: 0, y1: 6 };
 export function inSwamp(tx, ty) {
   return tx >= SWAMP.x0 && tx <= SWAMP.x1 && ty >= SWAMP.y0 && ty <= SWAMP.y1;
 }
+// Chợ nổi (bờ đông, xa sông): vùng an toàn, không có cua. Ký hiệu: D sàn chợ, Q quầy hàng.
+export const MARKET = { x0: 44, x1: 53, y0: 26, y1: 33 };
+export function inMarket(tx, ty) {
+  return tx >= MARKET.x0 && tx <= MARKET.x1 && ty >= MARKET.y0 && ty <= MARKET.y1;
+}
 
 // PRNG có seed để bản đồ luôn giống nhau mỗi lần chơi.
 export function mulberry32(seed) {
@@ -81,6 +86,24 @@ export function buildMap(seed = 2026) {
       if (grid[y]?.[x] === 'T' || grid[y]?.[x] === 'R' || grid[y]?.[x] === 'H') grid[y][x] = 'G';
     }
   }
+  stampMarket(grid);
+  return grid;
+}
+
+// Dựng chợ: dọn cây quanh chợ, lát sàn, đặt quầy (chặn) và cờ ở góc.
+// Dùng cả khi tải bản lưu cũ (chưa có chợ).
+export function stampMarket(grid) {
+  for (let y = MARKET.y0 - 2; y <= MARKET.y1 + 2; y++) {
+    for (let x = MARKET.x0 - 4; x <= MARKET.x1 + 2; x++) {
+      if (grid[y]?.[x] === 'T' || grid[y]?.[x] === 'R' || grid[y]?.[x] === 'H') grid[y][x] = 'G';
+    }
+  }
+  for (let y = MARKET.y0; y <= MARKET.y1; y++) {
+    for (let x = MARKET.x0; x <= MARKET.x1; x++) grid[y][x] = 'D';
+  }
+  for (const x of [45, 46, 49, 50, 52, 53]) grid[27][x] = 'Q';
+  grid[MARKET.y1][MARKET.x0] = 'FLAG';
+  grid[MARKET.y1][MARKET.x1] = 'FLAG';
   return grid;
 }
 

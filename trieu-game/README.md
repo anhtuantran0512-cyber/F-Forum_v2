@@ -62,6 +62,13 @@ Một số công thức cần trạm: **Bếp lửa** (K) cho than, trà gừng,
 - Nhân vật, cua và rắn có viền tối; cua và rắn có 2 khung hình chuyển động.
 - Vignette làm tối mép màn hình; bảng HUD có nền mờ để dễ đọc.
 
+## Chợ Nổi (Đợt 5)
+
+- Chợ ở bờ đông sông, vùng an toàn: cua không vào được. Đứng cạnh thương lái và nhấn **E** để mở menu đổi đồ.
+- Thương lái đổi đồ lấy đồ, không có tiền. Mỗi ngày mỗi thương lái bày 3 kèo; mỗi kèo đổi tối đa 2 lần mỗi ngày.
+- Logic kèo nằm ở `src/market.js` (bảng kèo, giá trị, lượt đổi). Bố cục chợ nằm ở `stampMarket` trong `src/world.js`.
+- Kiểm thử đơn vị: `npm test` (chạy `node --test`, không cần trình duyệt).
+
 ## Vùng Đầm Lầy (Đợt 4)
 
 Vùng tây bắc (góc trên bên trái bản đồ, ngay phía bắc nhà sàn). Bùn lầy làm chậm di chuyển (60%), cây cốc cho Rễ cốc và hồi sinh sau 90 giây, sương mù động phủ lên vùng và dày hơn khi mưa (sương dày có thêm rễ cốc). Muỗi đầm lầy đốt cả ban ngày, mỗi 40–60 giây, 25% nhiễm sốt rét; đèn xua muỗi vẫn bảo vệ được trong bán kính 4 ô.

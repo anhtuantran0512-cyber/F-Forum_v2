@@ -30,6 +30,11 @@ import {
   MARSH_SLOW,
 } from '../balance.js';
 import { Sfx } from '../sfx.js';
+import { inMarket, stampMarket } from '../world.js';
+import {
+  TRADERS, DAILY_STOCK, newMarketState, rollMarket, todaysOffers, stockLeft,
+  checkTrade, executeTrade, describeOffer,
+} from '../market.js';
 import { getSettings, setSettings } from '../settings.js';
 
 const VIEW_W = 1280;
@@ -38,16 +43,17 @@ const ZOOM = 3;
 const SEED = 2026;
 
 const SKILL_NAME = { dive: 'Lặn', herb: 'Thảo dược', fish: 'Chài lưới' };
-const BLOCK_TYPES = new Set(['T', 'R', 'X', 'K', 'SP', 'LM', 'DR', 'FLAG', 'TR']);
+const BLOCK_TYPES = new Set(['T', 'R', 'X', 'K', 'SP', 'LM', 'DR', 'FLAG', 'TR', 'Q']);
 const TYPE_FRAME = {
   P: TILE_FRAME.PLANK, K: TILE_FRAME.FIRE, SP: TILE_FRAME.SPIKE, LM: TILE_FRAME.LAMP,
   DR: TILE_FRAME.DRY, FLAG: TILE_FRAME.FLAG, TR: TILE_FRAME.TRAP, M: TILE_FRAME.MARSH, C: TILE_FRAME.COC,
+  D: TILE_FRAME.DECK, Q: TILE_FRAME.STALL,
 };
 // Âm thanh khi đào / hái / chặt theo loại ô
 const WALK_SEQ = ['1', '2', '3', '2']; // chu kỳ bước: trái, chụm, phải, chụm
 const GATHER_SFX = { T: 'chop', R: 'stone', H: 'gather', C: 'gather', S: 'reed', TR: 'trap' };
 const RESOURCE_CATS = new Set(['resource', 'rare', 'food', 'medicine', 'ammo']);
-const MENU_TITLE = { craft: 'CHẾ TẠO  (C)', build: 'XÂY DỰNG  (B)', inv: 'TÚI ĐỒ  (I)' };
+const MENU_TITLE = { craft: 'CHẾ TẠO  (C)', build: 'XÂY DỰNG  (B)', inv: 'TÚI ĐỒ  (I)', trade: 'CHỢ NỔI' };
 
 const COLOR = {
   text: '#f2e6c9',
@@ -70,7 +76,8 @@ export default class GameScene extends Phaser.Scene {
   create() {
     const save = loadSave();
     this.save = save;
-    this.grid = save ? save.grid : buildMap(SEED);
+    this.grid = save ? stampMarket(save.grid) : buildMap(SEED);
+    this.market = save?.market ?? newMarketState(); // lượt đổi kèo trong ngày
     this.survival = new Survival();
     if (save) applySurvival(this.survival, save.surv);
     this.t = save ? save.t : 0;               // thời gian trò chơi (giây)
@@ -115,6 +122,7 @@ export default class GameScene extends Phaser.Scene {
     this.createTiles();
     this.createPlayer();
     this.createEnemies();
+    this.createTraders();
     this.createFx();
     this.createHud();
     this.createInput();
@@ -161,6 +169,23 @@ export default class GameScene extends Phaser.Scene {
       this.tileImgs.push(row);
     }
     this.frameCache = new Int16Array(MAP_W * MAP_H).fill(-1);
+  }
+
+  // Thương lái đứng quầy: dùng sprite người chơi với màu khác, có nhãn tên.
+  createTraders() {
+    this.npcTiles = new Set();
+    this.traderSprites = TRADERS.map((tr) => {
+      this.npcTiles.add(tr.tile.x + ',' + tr.tile.y);
+      const x = tr.tile.x * TILE + 8, y = tr.tile.y * TILE + 12;
+      const spr = this.add.sprite(x, y, 'player', '0')
+        .setOrigin(0.5, 20 / 24)
+        .setTint(tr.tint)
+        .setDepth(y);
+      this.add.text(x, y - 30, tr.name, {
+        fontFamily: 'monospace', fontSize: '6px', color: '#ffe9b0', stroke: '#05121f', strokeThickness: 2,
+      }).setOrigin(0.5, 1).setDepth(y).setResolution(4);
+      return spr;
+    });
   }
 
   createPlayer() {
@@ -263,7 +288,7 @@ export default class GameScene extends Phaser.Scene {
       'C               CHẾ TẠO (menu)    B  XÂY DỰNG (menu, đặt ô đang quay mặt)',
       'I               TÚI ĐỒ (dùng, mặc trang bị)',
       'F               Câu cá (quay mặt về nước; cá vàng khi nước lớn)',
-      'E               Uống nước sông (CÓ THỂ trúng nước độc!)',
+      'E               Uống nước sông (CÓ THỂ trúng nước độc!) · đứng cạnh thương lái: ĐỔI ĐỒ',
       '1 / 2 / 3       Ăn nhanh: cá / cua / cá vàng     T  Nướng cá (gần bếp)',
       'Q / N           Uống Nước Lá Rừng / Thuốc Sốt',
       'R               Ngủ (nhà sàn an toàn hơn; ngủ tới lúc triều xuống)',
@@ -309,6 +334,7 @@ export default class GameScene extends Phaser.Scene {
   // boat = true: thuyền đi được trên nước.
   blocked(tx, ty, boat = false) {
     if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) return true;
+    if (this.npcTiles?.has(tx + ',' + ty)) return true; // thương lái đứng yên
     const t = this.grid[ty][tx];
     if (BLOCK_TYPES.has(t)) return true;
     if (this.isWater(tx, ty)) return !boat;
@@ -549,6 +575,40 @@ export default class GameScene extends Phaser.Scene {
     const cx = this.px, cy = this.py - 6;
     const fx = cx + this.face.x * 12, fy = cy + this.face.y * 12;
     return { tx: Math.floor(fx / TILE), ty: Math.floor(fy / TILE) };
+  }
+
+  // Trong chợ: người chơi có an toàn khỏi cua hay không.
+  inMarket() {
+    const { tx, ty } = this.playerTile();
+    return inMarket(tx, ty);
+  }
+
+  checkMarketEntry() {
+    const inside = this.inMarket();
+    if (inside === this.wasInMarket) return;
+    this.wasInMarket = inside;
+    if (inside) this.msg('Bạn vào Chợ Nổi: vùng an toàn, không có cua. Đứng cạnh thương lái và nhấn E để đổi đồ.', COLOR.good);
+  }
+
+  // Đứng cạnh (kể cả chéo) một thương lái: trả về chỉ số, hoặc -1.
+  nearTrader() {
+    const { tx, ty } = this.playerTile();
+    return TRADERS.findIndex((tr) => Math.abs(tr.tile.x - tx) <= 1 && Math.abs(tr.tile.y - ty) <= 1);
+  }
+
+  tryTrade() {
+    const i = this.nearTrader();
+    if (i < 0) return false;
+    this.tradeIdx = i;
+    this.openMenu('trade');
+    return true;
+  }
+
+  doTrade(oi) {
+    const r = executeTrade(this.market, this.inv, this.tradeIdx, oi, this.clock().day);
+    if (!r.ok) { this.msg(r.reason, COLOR.warn); return; }
+    this.sfx.play('craft');
+    this.msg(`Đã đổi: ${describeOffer(r.offer)}`, COLOR.good);
   }
 
   playerTile() {
@@ -934,6 +994,26 @@ export default class GameScene extends Phaser.Scene {
         };
       });
     }
+    if (mode === 'trade') {
+      const ti = this.tradeIdx;
+      const day = this.clock().day;
+      rollMarket(this.market, day);
+      return todaysOffers(ti, day).map((oi) => {
+        const offer = TRADERS[ti].pool[oi];
+        const left = stockLeft(this.market, ti, oi);
+        const chk = checkTrade(this.inv, offer);
+        const ok = left > 0 && chk.ok;
+        let state = chk.ok ? 'Enter để đổi.' : chk.reason;
+        if (left <= 0) state = 'Đã hết lượt hôm nay.';
+        return {
+          label: `${describeOffer(offer)}  [${left}/${DAILY_STOCK}]`,
+          icon: Object.keys(offer.get)[0],
+          ok,
+          detail: `${TRADERS[ti].name}: ${describeOffer(offer)}\n${state}\nMỗi kèo đổi tối đa ${DAILY_STOCK} lần mỗi ngày; kèo mới bày vào ngày mai.`,
+          data: oi,
+        };
+      });
+    }
     // Túi đồ
     const items = [];
     for (const id of Object.keys(ITEMS)) {
@@ -962,7 +1042,8 @@ export default class GameScene extends Phaser.Scene {
 
   openMenu(mode) {
     this.menuMode = mode;
-    this.menu.show(this.buildMenuItems(mode), '↑↓ / W S chọn · Enter thực hiện · Esc hoặc phím mở để đóng', MENU_TITLE[mode]);
+    const title = mode === 'trade' ? `CHỢ NỔI · ${TRADERS[this.tradeIdx].name}` : MENU_TITLE[mode];
+    this.menu.show(this.buildMenuItems(mode), '↑↓ / W S chọn · Enter thực hiện · Esc hoặc phím mở để đóng', title);
   }
 
   closeMenu() {
@@ -984,6 +1065,7 @@ export default class GameScene extends Phaser.Scene {
     if (!it || it.data == null) return;
     if (this.menuMode === 'craft') this.craftRecipe(it.data);
     else if (this.menuMode === 'build') this.placeRecipe(it.data);
+    else if (this.menuMode === 'trade') this.doTrade(it.data);
     else {
       const id = it.data;
       const d = ITEMS[id];
@@ -1021,7 +1103,7 @@ export default class GameScene extends Phaser.Scene {
     if (J(k.SPACE)) this.doGather();
     if (J(k.X)) this.doAttack();
     if (J(k.F)) this.doFish();
-    if (J(k.E)) this.doDrinkRiver();
+    if (J(k.E)) { if (!this.tryTrade()) this.doDrinkRiver(); }
     if (J(k.ONE)) this.quickUse(['cafish', 'fish'], 'Không có cá.');
     if (J(k.TWO)) this.quickUse(['cuanuong', 'cua', 'thitran'], 'Không có thịt để ăn.');
     if (J(k.THREE)) this.quickUse(['cagold'], 'Không có cá vàng.');
@@ -1120,6 +1202,7 @@ export default class GameScene extends Phaser.Scene {
     this.handleActions();
     if (this.menu.open) { this.updateHud(); return; }
     this.handleMovement(dt);
+    this.checkMarketEntry();
 
     // Đồng bộ vị trí nhân vật + hoạt ảnh đi bộ.
     if (this.moving) this.walkT += dt; else this.walkT = 0;
@@ -1243,8 +1326,10 @@ export default class GameScene extends Phaser.Scene {
         sx = c.dir.x * 10; sy = c.dir.y * 10;
       }
       const before = { x: c.x, y: c.y };
-      if (!this.collides(c.x + sx * dt, c.y)) c.x += sx * dt;
-      if (!this.collides(c.x, c.y + sy * dt)) c.y += sy * dt;
+      // Cua không vào chợ (vùng an toàn).
+      const nxT = Math.floor((c.x + sx * dt) / TILE), nyT = Math.floor((c.y + sy * dt) / TILE);
+      if (!this.collides(c.x + sx * dt, c.y) && !inMarket(nxT, Math.floor(c.y / TILE))) c.x += sx * dt;
+      if (!this.collides(c.x, c.y + sy * dt) && !inMarket(Math.floor(c.x / TILE), nyT)) c.y += sy * dt;
       if (before.x === c.x && before.y === c.y) c.turnT = 0; // kẹt thì đổi hướng
       c.spr.setPosition(c.x, c.y).setFlipX(sx < 0).setFrame(((this.animFrame >> 1) & 1) ? '1' : '0');
 
@@ -1257,7 +1342,7 @@ export default class GameScene extends Phaser.Scene {
       }
 
       // Cắn khi đủ gần
-      if (c.alive && alivePlayer && dist < 14 && c.cool <= 0) {
+      if (c.alive && alivePlayer && dist < 14 && c.cool <= 0 && !this.inMarket()) {
         c.cool = 1.5;
         const dmg = 8 * this.armorMods().dmgTaken;
         this.survival.hp = Math.max(0, this.survival.hp - dmg);
@@ -1324,7 +1409,7 @@ export default class GameScene extends Phaser.Scene {
       const ty = Phaser.Math.Between(2, MAP_H - 3);
       const d = distToRiver(tx);
       if (d < 3 || d > 12) continue;
-      if (this.blocked(tx, ty)) continue;
+      if (this.blocked(tx, ty) || inMarket(tx, ty)) continue;
       const t = this.grid[ty][tx];
       if (t !== 'B' && t !== 'S' && t !== 'G') continue;
       if (Phaser.Math.Distance.Between(tx * TILE, ty * TILE, this.px, this.py) < 80) continue;

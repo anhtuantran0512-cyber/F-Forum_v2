@@ -12,6 +12,23 @@ const PAL = {
 };
 
 const ART = {
+  // ---- Chợ nổi (đợt 5) ----
+  muoi: [
+    '............', '.....oo.....', '....occo....', '...occcco...', '..occpccco..', '..occcccpco.',
+    '..ocpcccco..', '..occcccco..', '..occpcccco.', '...oooooo...', '............', '............',
+  ],
+  lua: [
+    '............', '...oooooo...', '..oBBBBBBo..', '..oBpBBpBo..', '..oBBBBBBo..', '..oBpBBpBo..',
+    '..oBBBBBBo..', '..oBpBBpBo..', '..oBBBBBBo..', '...oooooo...', '............', '............',
+  ],
+  camuoi: [
+    '............', '............', '.....oo.....', '.oooEEoo....', '.oEEpEEEoo..', 'oEEEEpEEEEo.',
+    'oEpEEEEEEEo.', 'oEEEpEEEEEo.', '.oEEEEEEEoo.', '..oooooooo..', '............', '............',
+  ],
+  aolua: [
+    '............', '..oo....oo..', '.ohoo..oohho', '.ohhhhhhhho.', 'ohhhphhhphho', 'ohhhhhhhhhho',
+    'ohhhhhhhhhho', '.oooooooooo.', '....hhhh....', '....hhhh....', '....oooo....', '............',
+  ],
   // ---- Tài nguyên ----
   wood: [
     '............', '..oooooooo..', '.oWWWWWWWWo.', '.oWwwwNNwWo.', '.oWwwNNwWWo.',

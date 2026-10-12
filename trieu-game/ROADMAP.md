@@ -9,12 +9,18 @@ Các mục cần server (clan, raid, PvP, bảng xếp hạng, chợ giữa ngư
 | 2 | Lưu và tải tiến trình | Xong |
 | 3 | Bẫy tôm | Xong |
 | 4 | Vùng Đầm Lầy: bùn lầy, cây cốc, sương mù động, muỗi đầm lầy, thuốc cốc 3 tầng | Xong (một phần) |
-| 5 | Chợ nổi trung tâm (vùng an toàn, thương lái đổi đồ, không cần server) | Chưa làm |
+| 5 | Chợ nổi trung tâm (vùng an toàn, thương lái đổi đồ, không cần server) | Xong |
 | 6 | Sự kiện thời tiết: bão, sương dày, nước dâng bất thường | Chưa làm |
 | 7 | Lưới và giàn phơi tự động | Chưa làm |
 | 8 | Chuỗi nhiệm vụ làng | Chưa làm |
 | 9 | Boss Giao Long (một người chơi, theo triều đỏ) | Chưa làm |
 | 10 | Hang ngầm dưới sông | Chưa làm |
+
+## Đợt 5 — Chợ nổi (đã làm)
+- Chợ ở bờ đông sông (x 44–53, y 26–33): vùng an toàn, cua không vào và không cắn người chơi trong chợ, không spawn cua trong chợ.
+- 3 thương lái (Bà Hến, Ông Ghe, Chị Lụa), đổi đồ lấy đồ, không có tiền. Mỗi ngày bày 3 kèo chọn từ kho 6 kèo; mỗi kèo đổi tối đa 2 lần/ngày.
+- Mọi kèo không làm tăng tổng giá trị (kiểm tra bằng `npm test`).
+- Vật phẩm mới: Muối hạt, Lụa ghe, Cá muối (công thức), Áo lụa (công thức).
 
 ## Đợt 4 — phần còn thiếu so với roadmap gốc
 - Nhiệm vụ "Ân Oán" trong đầm lầy (25 nhiệm vụ) → chuyển sang chuỗi nhiệm vụ làng (đợt 8).

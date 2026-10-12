@@ -30,6 +30,7 @@ export function saveGame(scene) {
       weatherT: scene.weatherT,
       surv,
       traps: [...scene.traps.entries()],
+      market: scene.market,
     };
     localStorage.setItem(KEY, JSON.stringify(data));
     return true;
