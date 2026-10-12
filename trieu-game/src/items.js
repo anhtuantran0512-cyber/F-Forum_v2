@@ -38,6 +38,7 @@ export const ITEMS = {
   cuanuong:{ name: 'Cua nướng', cat: 'food', desc: 'Cua nướng thơm, ấm bụng.', use: { hunger: 45, temp: 5 } },
   canhoc:  { name: 'Canh ốc', cat: 'food', desc: 'Canh ốc hến nóng, bù nước và ấm người.', use: { hunger: 30, thirst: 20, temp: 6 } },
   cakho:   { name: 'Cá khô', cat: 'food', desc: 'Cá phơi khô trên giàn. Để được lâu, no bền.', use: { hunger: 30, stamina: 20 } },
+  tom:     { name: 'Tôm sông', cat: 'food', desc: 'Tôm sông từ bẫy tre. Ăn sống khá an toàn.', use: { hunger: 18, stamina: 5 } },
   thitran: { name: 'Thịt rắn nước', cat: 'food', desc: 'Thịt rắn sông, bổ sức.', use: { hunger: 30, stamina: 15 } },
   cagold:  { name: 'Cá vàng', cat: 'rare', desc: 'Cá vàng hiếm, chỉ câu được lúc nước lớn. No và hồi máu.',
              use: { hunger: 40, hp: 15 } },
@@ -113,6 +114,7 @@ export const RECIPES = [
   { build: true, place: 'LM', name: 'Đèn xua muỗi', desc: 'Xua muỗi trong bán kính 4 ô, ban đêm.', need: { reed: 2, wood: 1, stone: 1 } },
   { build: true, place: 'DR', name: 'Giàn phơi cá', desc: 'Trạm phơi cá làm Cá khô.', need: { wood: 3, vine: 2 } },
   { build: true, place: 'FLAG', name: 'Cờ làng', desc: 'Cờ trang trí của làng nổi.', need: { wood: 2, vine: 1 } },
+  { build: true, place: 'TR', name: 'Bẫy tôm', desc: 'Đặt xuống ô NƯỚC đang quay mặt. Thỉnh thoảng bắt được tôm; đứng quay mặt về bẫy và nhấn Space để thu.', need: { vine: 2, reed: 2 }, water: true },
 ];
 
 // Tên và mô tả hiển thị cho một công thức.

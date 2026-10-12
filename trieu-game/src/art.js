@@ -22,6 +22,7 @@ export const TILE_FRAME = {
   LAMP: 17,
   DRY: 18,
   FLAG: 19,
+  TRAP: 20,
 };
 
 const PAL = {
@@ -268,6 +269,19 @@ function drawSnake(ctx, ox) {
   px(ctx, ox + 13, 2, '#1a1a1a');
 }
 
+function drawTrap(ctx, ox) {
+  drawWater(ctx, ox, 0);
+  // Lồng tre nổi trên mặt nước
+  const cage = PAL.plankA, line = PAL.plankLine;
+  ctx.fillStyle = cage;
+  ctx.fillRect(ox + 3, 5, 10, 7);
+  ctx.fillStyle = line;
+  for (let x = 3; x <= 12; x += 3) ctx.fillRect(ox + x, 5, 1, 7);
+  for (let y = 5; y <= 11; y += 3) ctx.fillRect(ox + 3, y, 10, 1);
+  ctx.fillStyle = PAL.foam;
+  ctx.fillRect(ox + 6, 9, 4, 1);
+}
+
 function drawFloor(ctx, ox) {
   for (let y = 0; y < TILE; y++) {
     for (let x = 0; x < TILE; x++) {
@@ -366,7 +380,7 @@ export function generateTextures(scene) {
 
   // ---- Tileset ----
   const tileCanvas = document.createElement('canvas');
-  tileCanvas.width = TILE * 20;
+  tileCanvas.width = TILE * 21;
   tileCanvas.height = TILE;
   const tctx = tileCanvas.getContext('2d');
   for (let f = 0; f < 4; f++) drawWater(tctx, f * TILE, f);
@@ -386,9 +400,10 @@ export function generateTextures(scene) {
   drawLamp(tctx, 17 * TILE);
   drawDrying(tctx, 18 * TILE);
   drawFlag(tctx, 19 * TILE);
+  drawTrap(tctx, 20 * TILE);
   tex.addCanvas('tiles', tileCanvas);
   const tTex = tex.get('tiles');
-  for (let i = 0; i < 20; i++) tTex.add(String(i), 0, i * TILE, 0, TILE, TILE);
+  for (let i = 0; i < 21; i++) tTex.add(String(i), 0, i * TILE, 0, TILE, TILE);
 
   // ---- Nhân vật: 2 frame đi bộ (32x24 gồm 2 ô 16x24) ----
   const pCanvas = document.createElement('canvas');

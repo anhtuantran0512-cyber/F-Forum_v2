@@ -7,6 +7,7 @@ import {
 import { Survival } from '../survival.js';
 import { ITEMS, RECIPES, CAT_NAME, recipeName, recipeDesc } from '../items.js';
 import ListMenu from '../ui/menu.js';
+import { saveGame, loadSave, clearSave, applySurvival } from '../save.js';
 
 const VIEW_W = 1280;
 const VIEW_H = 720;
@@ -27,8 +28,10 @@ const LAMP_RANGE = 4;      // đèn xua muỗi
 const SPIKE_DMG = 6;
 
 const SKILL_NAME = { dive: 'Lặn', herb: 'Thảo dược', fish: 'Chài lưới' };
-const BLOCK_TYPES = new Set(['T', 'R', 'X', 'K', 'SP', 'LM', 'DR', 'FLAG']);
-const TYPE_FRAME = { P: TILE_FRAME.PLANK, K: TILE_FRAME.FIRE, SP: TILE_FRAME.SPIKE, LM: TILE_FRAME.LAMP, DR: TILE_FRAME.DRY, FLAG: TILE_FRAME.FLAG };
+const BLOCK_TYPES = new Set(['T', 'R', 'X', 'K', 'SP', 'LM', 'DR', 'FLAG', 'TR']);
+const TRAP_PERIOD = 30;    // bẫy tôm: 30 giây thử một lần
+const TRAP_MAX = 5;
+const TYPE_FRAME = { P: TILE_FRAME.PLANK, K: TILE_FRAME.FIRE, SP: TILE_FRAME.SPIKE, LM: TILE_FRAME.LAMP, DR: TILE_FRAME.DRY, FLAG: TILE_FRAME.FLAG, TR: TILE_FRAME.TRAP };
 const RESOURCE_CATS = new Set(['resource', 'rare', 'food', 'medicine', 'ammo']);
 const MENU_TITLE = { craft: 'CHẾ TẠO  (C)', build: 'XÂY DỰNG  (B)', inv: 'TÚI ĐỒ  (I)' };
 
@@ -51,9 +54,12 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
-    this.grid = buildMap(SEED);
+    const save = loadSave();
+    this.save = save;
+    this.grid = save ? save.grid : buildMap(SEED);
     this.survival = new Survival();
-    this.t = 0;               // thời gian trò chơi (giây)
+    if (save) applySurvival(this.survival, save.surv);
+    this.t = save ? save.t : 0;               // thời gian trò chơi (giây)
     this.halfW = tideHalfWidth(0);
     this.animFrame = 0;
     this.animT = 0;
@@ -61,8 +67,8 @@ export default class GameScene extends Phaser.Scene {
     this.face = { x: 0, y: 1 };
     this.moving = false;
     this.sprinting = false;
-    this.raining = false;
-    this.weatherT = 60;       // trời khô 60 giây đầu
+    this.raining = save ? save.raining : false;
+    this.weatherT = save ? save.weatherT : 60;       // trời khô 60 giây đầu
     this.wetT = 0;
     this.busy = false;        // đang ngủ (fade)
     this.dead = false;
@@ -73,17 +79,18 @@ export default class GameScene extends Phaser.Scene {
     this.mosqT = 15;          // đếm ngược lần muỗi đốt tiếp theo
     this.respawns = [];
     this.log = [];
-    this.onBoat = false;
+    this.onBoat = save ? save.onBoat : false;
+    this.traps = new Map(save ? save.traps : []); // bẫy tôm: 'x,y' -> { catch, timer }
     this.helpVisible = true;
     this.menuMode = null;
 
     // Túi đồ: mọi vật phẩm đều có số lượng (0 nếu chưa có)
     this.inv = {};
-    for (const id of Object.keys(ITEMS)) this.inv[id] = 0;
-    Object.assign(this.inv, { wood: 2, reed: 4, herb: 1, machete: 1 });
+    for (const id of Object.keys(ITEMS)) this.inv[id] = save?.inv?.[id] ?? 0;
+    if (!save) Object.assign(this.inv, { wood: 2, reed: 4, herb: 1, machete: 1 });
     // Trang bị đang mặc
-    this.equip = { weapon: 'machete', head: null, body: null, feet: null };
-    this.skills = { dive: 0, herb: 0, fish: 0 }; // XP; cấp = floor(XP / 20), tối đa 20
+    this.equip = save?.equip ?? { weapon: 'machete', head: null, body: null, feet: null };
+    this.skills = save?.skills ?? { dive: 0, herb: 0, fish: 0 }; // XP; cấp = floor(XP / 20), tối đa 20
 
     this.hud = [];
     this.hudTexts = [];
@@ -109,6 +116,14 @@ export default class GameScene extends Phaser.Scene {
     const worldObjs = this.children.list.filter((o) => !hudSet.has(o));
     this.uiCam.ignore(worldObjs);
 
+    // Tự lưu mỗi 20 giây và khi đóng trang.
+    this.time.addEvent({ delay: 20000, loop: true, callback: () => saveGame(this) });
+    window.addEventListener('beforeunload', () => saveGame(this));
+    if (save) this.msg('Đã tải tiến trình đã lưu. (P: lưu ngay · Backspace: xoá và chơi lại)', COLOR.good);
+
+    // Điểm truy cập để kiểm thử tự động (không ảnh hưởng gameplay).
+    if (typeof window !== 'undefined') window.__trieu = this;
+
     this.msg('Bạn tỉnh dậy bên nhà sàn. Nước đang lên...', COLOR.text);
     this.msg('Nhấn H để xem điều khiển. C = chế tạo, B = xây dựng, I = túi đồ.', COLOR.dim);
   }
@@ -133,8 +148,8 @@ export default class GameScene extends Phaser.Scene {
   createPlayer() {
     const startTx = HOUSE.x + Math.floor(HOUSE.w / 2);
     const startTy = HOUSE.y + HOUSE.h + 1;
-    this.px = startTx * TILE + 8;
-    this.py = startTy * TILE + 12; // vị trí "chân" (đáy hitbox)
+    this.px = this.save ? this.save.px : startTx * TILE + 8;
+    this.py = this.save ? this.save.py : startTy * TILE + 12; // vị trí "chân" (đáy hitbox)
     this.player = this.add.sprite(this.px, this.py, 'player', '0')
       .setOrigin(0.5, 20 / 24)
       .setDepth(10);
@@ -241,7 +256,7 @@ export default class GameScene extends Phaser.Scene {
       W: KC.W, A: KC.A, S: KC.S, D: KC.D,
       SPACE: KC.SPACE, SHIFT: KC.SHIFT, ENTER: KC.ENTER, ESC: KC.ESC,
       X: KC.X, F: KC.F, E: KC.E, Q: KC.Q, C: KC.C, B: KC.B, R: KC.R, H: KC.H,
-      V: KC.V, I: KC.I, O: KC.O, T: KC.T, N: KC.N,
+      V: KC.V, I: KC.I, O: KC.O, T: KC.T, N: KC.N, P: KC.P, BACKSPACE: KC.BACKSPACE,
       ONE: KC.ONE, TWO: KC.TWO, THREE: KC.THREE,
     });
   }
@@ -493,6 +508,20 @@ export default class GameScene extends Phaser.Scene {
     const { tx, ty } = this.frontTile();
     const t = this.grid[ty]?.[tx];
     const dive = this.lvl('dive');
+    if (t === 'TR') {
+      const key = `${tx},${ty}`;
+      const tr = this.traps.get(key) ?? { catch: 0, timer: 0 };
+      this.traps.set(key, tr);
+      if (tr.catch > 0) {
+        this.inv.tom += tr.catch;
+        this.msg(`Thu bẫy: +${tr.catch} Tôm sông`, COLOR.good);
+        tr.catch = 0;
+      } else {
+        this.msg('Bẫy tôm chưa bắt được gì.', COLOR.dim);
+      }
+      this.gatherCD = 0.5;
+      return;
+    }
     if (t === 'T') {
       this.grid[ty][tx] = 'G';
       this.inv.wood++;
@@ -612,13 +641,17 @@ export default class GameScene extends Phaser.Scene {
   }
 
   // Tạo ô đặt được ở vị trí đang quay mặt.
-  frontTarget() {
+  frontTarget(r = null) {
     const { tx, ty } = this.frontTile();
     const pt = this.playerTile();
     const t = this.grid[ty]?.[tx];
+    if (tx === pt.tx && ty === pt.ty) return { ok: false, reason: 'Không thể đặt ngay dưới chân.' };
+    if (r?.water) {
+      if (t !== 'W') return { ok: false, reason: 'Bẫy tôm phải đặt xuống nước sâu.' };
+      return { ok: true, tx, ty };
+    }
     if (!(t === 'G' || t === 'B' || t === 'S')) return { ok: false, reason: 'Không thể đặt ở ô này.' };
     if (this.isWater(tx, ty)) return { ok: false, reason: 'Không thể đặt trên nước.' };
-    if (tx === pt.tx && ty === pt.ty) return { ok: false, reason: 'Không thể đặt ngay dưới chân.' };
     return { ok: true, tx, ty };
   }
 
@@ -722,12 +755,13 @@ export default class GameScene extends Phaser.Scene {
   }
 
   placeRecipe(r) {
-    const tgt = this.frontTarget();
+    const tgt = this.frontTarget(r);
     if (!tgt.ok) { this.msg(tgt.reason, COLOR.dim); return false; }
     if (!this.hasIngredients(r)) { this.msg('Thiếu nguyên liệu để xây.', COLOR.warn); return false; }
     this.consume(r);
     this.grid[tgt.ty][tgt.tx] = r.place;
     this.refreshCell(tgt.tx, tgt.ty);
+    if (r.place === 'TR') this.traps.set(`${tgt.tx},${tgt.ty}`, { catch: 0, timer: 0 });
     this.msg(`Đã dựng ${r.name}.`, COLOR.good);
     if (r.place === 'P') {
       if (distToRiver(tgt.tx) <= PLATFORM_MAX_D) this.msg('⚠ Ô này ngập khi triều cường — sàn sẽ bị cuốn trôi!', COLOR.warn);
@@ -812,13 +846,15 @@ export default class GameScene extends Phaser.Scene {
       }));
     }
     if (mode === 'build') {
-      const tgt = this.frontTarget();
-      return RECIPES.filter((r) => r.build).map((r) => ({
-        label: recipeName(r),
-        ok: this.hasIngredients(r) && tgt.ok,
-        detail: `${this.recipeInfo(r)}\nÔ đặt: ${tgt.ok ? 'hợp lệ — Enter để đặt' : tgt.reason}`,
-        data: r,
-      }));
+      return RECIPES.filter((r) => r.build).map((r) => {
+        const tgt = this.frontTarget(r);
+        return {
+          label: recipeName(r),
+          ok: this.hasIngredients(r) && tgt.ok,
+          detail: `${this.recipeInfo(r)}\nÔ đặt: ${tgt.ok ? 'hợp lệ — Enter để đặt' : tgt.reason}`,
+          data: r,
+        };
+      });
     }
     // Túi đồ
     const items = [];
@@ -914,6 +950,8 @@ export default class GameScene extends Phaser.Scene {
     if (J(k.N)) this.quickUse(['feverMed'], 'Không có Thuốc Sốt.');
     if (J(k.T)) this.cookFish();
     if (J(k.R)) this.doSleep();
+    if (J(k.P)) { saveGame(this); this.msg('Đã lưu tiến trình.', COLOR.good); }
+    if (J(k.BACKSPACE)) { clearSave(); window.location.reload(); }
   }
 
   cookFish() {
@@ -973,6 +1011,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.t += dt;
+    this.updateTraps(dt);
     this.attackCD = Math.max(0, this.attackCD - dt);
     this.fishCD = Math.max(0, this.fishCD - dt);
     this.gatherCD = Math.max(0, this.gatherCD - dt);
@@ -1059,6 +1098,18 @@ export default class GameScene extends Phaser.Scene {
       }
       return false;
     });
+  }
+
+  // ---------------- Bẫy tôm ----------------
+
+  updateTraps(dt) {
+    for (const tr of this.traps.values()) {
+      tr.timer += dt;
+      if (tr.timer >= TRAP_PERIOD) {
+        tr.timer = 0;
+        if (tr.catch < TRAP_MAX && Math.random() < 0.6) tr.catch++;
+      }
+    }
   }
 
   // ---------------- Sinh vật: cua đá & rắn nước ----------------

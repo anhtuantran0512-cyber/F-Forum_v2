@@ -30,6 +30,8 @@ npm run build      # build ra dist/
 | T | Nướng cá sống (đứng gần bếp lửa) |
 | Q / N | Uống Nước Lá Rừng / Thuốc Sốt |
 | R | Ngủ (nhà sàn an toàn hơn; ngủ tới lúc triều xuống) |
+| **P** | **Lưu tiến trình ngay** (tự lưu mỗi 20 giây và khi đóng trang) |
+| **Backspace** | **Xoá tiến trình đã lưu** và chơi lại từ đầu |
 | H | Ẩn/hiện bảng điều khiển |
 
 Trong menu: ↑↓ hoặc W/S chọn · Enter thực hiện · Esc hoặc đúng phím mở để đóng. **Thế giới tạm dừng khi mở menu.**
@@ -45,9 +47,16 @@ Dữ liệu là một bảng duy nhất: thêm vật phẩm/công thức chỉ c
 - **Vũ khí**: Mã tấu, Giáo tre (mạnh cạnh nước), Dao đá (nhanh), Chùy đá (nặng), Cung tre + Mũi tên (bắn xa)
 - **Trang bị**: Nón lá (giảm lạnh khi mưa), Áo tơi (giảm lạnh + ướt), Áo giáp tre (giảm sát thương cua/rắn 50%), Giày gỗ (đi nhanh hơn)
 - **Phương tiện**: Thuyền độc mộc (đi trên sông)
-- **Công trình** (menu B): Sàn tre, Bếp lửa, Cọc nhọn (đâm cua), Đèn xua muỗi, Giàn phơi cá, Cờ làng
+- **Thuỷ sản**: Tôm sông (từ bẫy tôm, đói ít, tốn ít thể lực)
+- **Công trình** (menu B): Sàn tre, Bếp lửa, Cọc nhọn (đâm cua), Đèn xua muỗi, Giàn phơi cá, Cờ làng, **Bẫy tôm** (đặt xuống nước sâu)
+
+**Bẫy tôm**: đứng trên bờ quay mặt về ô nước sâu rồi dựng bẫy (menu B). Mỗi 30 giây có 60% khả năng bắt được 1 tôm, chứa tối đa 5 con. Quay lại đứng gần bẫy và nhấn Space để thu.
 
 Một số công thức cần trạm: **Bếp lửa** (K) cho than, trà gừng, cá nướng, cua nướng, canh ốc; **Giàn phơi** (DR) cho cá khô. Thuốc Sốt cần Thảo dược Lv10.
+
+## Lưu & tải
+
+Tiến trình được lưu trong `localStorage` (khoá `trieu-save-v1`): thời gian, bản đồ đã biến đổi, túi đồ, trang bị, kỹ năng, chỉ số sinh tồn, vị trí, bệnh, bẫy tôm. Mở lại trang sẽ tự tải tiến trình. Phím **P** lưu ngay, **Backspace** xoá và chơi lại.
 
 ## Hệ thống
 
@@ -63,17 +72,18 @@ Một số công thức cần trạm: **Bếp lửa** (K) cho than, trà gừng,
 
 ## Chưa có (để các bước sau)
 
-Multiplayer/Colyseus, nhiều vùng bản đồ và chunk loading, độ bền vũ khí, clan & raid, boss, chợ nổi, hang ngầm, trồng thảo dược, thời tiết cực đoan, Lặn dưới nước (hiện Lặn chỉ tăng sát thương và tỉ lệ nhặt san hô).
+Multiplayer/Colyseus, nhiều vùng bản đồ và chunk loading, độ bền vũ khí, clan & raid, boss, chợ nổi, hang ngầm, trồng thảo dược, thời tiết cực đoan, Lặn dưới nước, đầm lầy, lưới đánh cá, nhiệm vụ làng (hiện Lặn chỉ tăng sát thương và tỉ lệ nhặt san hô).
 
 ## Cấu trúc
 
 ```
 src/
   main.js              khởi tạo Phaser, BootScene sinh texture
-  art.js               vẽ tile (20 ô), nhân vật (16x24), cua, rắn bằng code
+  art.js               vẽ tile (21 ô), nhân vật (16x24), cua, rắn bằng code
   items.js             BẢNG vật phẩm, công thức, vũ khí, trang bị, công trình
   world.js             bản đồ, PRNG có seed, công thức triều
   survival.js          chỉ số sinh tồn, bệnh, thức trắng, áp dụng hiệu ứng vật phẩm
+  save.js              lưu / tải / xoá tiến trình (localStorage)
   ui/menu.js           menu danh sách dùng chung (chế tạo / xây dựng / túi đồ)
   scenes/GameScene.js  vòng lặp game, tương tác, sinh vật, HUD
 ```
