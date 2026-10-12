@@ -23,6 +23,14 @@ Các mục cần server (clan, raid, PvP, bảng xếp hạng, chợ giữa ngư
 - Sự kiện "Sương Đêm Đầu Mùa" có thời hạn.
 - Nhiều công thức thuốc hơn (hiện 3 tầng, chưa đủ 40).
 
+## Nâng cấp hệ thống (đã xong)
+- Âm thanh tổng hợp, tắt tiếng bằng M.
+- Cài đặt đồ họa cao/thấp bằng G, lưu localStorage.
+- Icon vật phẩm và công trình trong menu.
+- Hoạt hình đi bộ 4 khung.
+- Bảng cân bằng gom về `src/balance.js`.
+- Số liệu nổi trên đầu nhân vật khi nhặt đồ hoặc bị thương.
+
 ## Mục tiêu nội dung (đã thống nhất)
 - Mốc 1 năm: 600+ vật phẩm (hiện khoảng 38).
 - Số vùng bản đồ và hệ thống lõi tăng dần theo từng đợt.
