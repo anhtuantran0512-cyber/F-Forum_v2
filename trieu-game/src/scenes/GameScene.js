@@ -9,31 +9,36 @@ import { Survival } from '../survival.js';
 import { ITEMS, RECIPES, CAT_NAME, recipeName, recipeDesc } from '../items.js';
 import ListMenu from '../ui/menu.js';
 import { saveGame, loadSave, clearSave, applySurvival } from '../save.js';
+import {
+  WALK_SPEED,
+  SPRINT_MULT,
+  BOAT_SPEED_MULT,
+  CRAB_COUNT,
+  CRAB_RESPAWN,
+  SNAKE_COUNT,
+  SNAKE_RESPAWN,
+  RESOURCE_RESPAWN,
+  ROCK_RESPAWN,
+  PLATFORM_MAX_D,
+  MOSQUITO_RANGE,
+  LAMP_RANGE,
+  SPIKE_DMG,
+  TRAP_PERIOD,
+  TRAP_MAX,
+  SWAMP_MOSQ_MIN,
+  SWAMP_MOSQ_RANGE,
+  MARSH_SLOW,
+} from '../balance.js';
 import { Sfx } from '../sfx.js';
 import { getSettings, setSettings } from '../settings.js';
 
 const VIEW_W = 1280;
 const VIEW_H = 720;
 const ZOOM = 3;
-const WALK_SPEED = 62;     // px thế giới / giây
-const SPRINT_MULT = 1.55;
-const BOAT_SPEED_MULT = 1.1;
 const SEED = 2026;
-const CRAB_COUNT = 3;
-const CRAB_RESPAWN = 25;
-const SNAKE_COUNT = 2;
-const SNAKE_RESPAWN = 30;
-const RESOURCE_RESPAWN = 90;
-const ROCK_RESPAWN = 120;
-const PLATFORM_MAX_D = 5;  // khoảng cách tối đa từ tâm sông mà mực triều cường có thể tới
-const MOSQUITO_RANGE = 8;  // muỗi hoạt động trong phạm vi này quanh sông
-const LAMP_RANGE = 4;      // đèn xua muỗi
-const SPIKE_DMG = 6;
 
 const SKILL_NAME = { dive: 'Lặn', herb: 'Thảo dược', fish: 'Chài lưới' };
 const BLOCK_TYPES = new Set(['T', 'R', 'X', 'K', 'SP', 'LM', 'DR', 'FLAG', 'TR']);
-const TRAP_PERIOD = 30;    // bẫy tôm: 30 giây thử một lần
-const TRAP_MAX = 5;
 const TYPE_FRAME = {
   P: TILE_FRAME.PLANK, K: TILE_FRAME.FIRE, SP: TILE_FRAME.SPIKE, LM: TILE_FRAME.LAMP,
   DR: TILE_FRAME.DRY, FLAG: TILE_FRAME.FLAG, TR: TILE_FRAME.TRAP, M: TILE_FRAME.MARSH, C: TILE_FRAME.COC,
@@ -41,9 +46,6 @@ const TYPE_FRAME = {
 // Âm thanh khi đào / hái / chặt theo loại ô
 const WALK_SEQ = ['1', '2', '3', '2']; // chu kỳ bước: trái, chụm, phải, chụm
 const GATHER_SFX = { T: 'chop', R: 'stone', H: 'gather', C: 'gather', S: 'reed', TR: 'trap' };
-const SWAMP_MOSQ_MIN = 40;  // muỗi đầm lầy đốt mỗi 40–60 giây (ban ngày cũng có)
-const SWAMP_MOSQ_RANGE = 20;
-const MARSH_SLOW = 0.6;     // đi trên bùn lầy chậm hơn
 const RESOURCE_CATS = new Set(['resource', 'rare', 'food', 'medicine', 'ammo']);
 const MENU_TITLE = { craft: 'CHẾ TẠO  (C)', build: 'XÂY DỰNG  (B)', inv: 'TÚI ĐỒ  (I)' };
 
@@ -108,6 +110,7 @@ export default class GameScene extends Phaser.Scene {
     this.hudTexts = [];
 
     this.sfx = new Sfx();
+    this.popups = [];
     this.quality = getSettings().quality;
     this.createTiles();
     this.createPlayer();
@@ -498,6 +501,9 @@ export default class GameScene extends Phaser.Scene {
 
   msg(text, color = COLOR.text) {
     this.log.unshift({ text, color, t: this.t });
+    // Số nổi trên đầu: +n (nhặt được) hoặc -n (bị thương)
+    const m = /(^|\s|\()([+-]\d+)/.exec(text);
+    if (m && this.popups) this.popup(m[2], m[2][0] === '+' ? '#8fd694' : '#ff7070');
     if (this.log.length > 30) this.log.length = 30;
   }
 
@@ -1346,6 +1352,25 @@ export default class GameScene extends Phaser.Scene {
 
   // ---------------- Hiệu ứng ----------------
 
+  // Số nổi bay lên và mờ dần trên đầu người chơi (chỉ camera thế giới vẽ).
+  popup(str, color) {
+    const t = this.add.text(this.px, this.py - 26 - this.popups.length * 8, str, {
+      fontFamily: 'monospace', fontSize: '6px', color, stroke: '#05121f', strokeThickness: 2,
+    }).setOrigin(0.5, 1).setDepth(60).setResolution(4);
+    if (this.uiCam) this.uiCam.ignore(t);
+    this.popups.push({ t, life: 0.9 });
+  }
+
+  updatePopups(dt) {
+    this.popups = this.popups.filter((p) => {
+      p.life -= dt;
+      if (p.life <= 0) { p.t.destroy(); return false; }
+      p.t.y -= 12 * dt;
+      p.t.setAlpha(Math.min(1, p.life * 2));
+      return true;
+    });
+  }
+
   // Âm nền: mưa (ngoài nhà), bếp lửa (gần K), tiếng sông (gần nước).
   updateAmbient() {
     const { tx, ty } = this.playerTile();
@@ -1427,6 +1452,7 @@ export default class GameScene extends Phaser.Scene {
     this.updateFoam();
     this.updateGlow();
     this.updateAmbient();
+    this.updatePopups(dt);
 
     // Mưa
     this.rainG.clear();

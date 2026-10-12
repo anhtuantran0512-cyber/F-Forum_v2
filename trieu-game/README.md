@@ -68,6 +68,15 @@ Vùng tây bắc (góc trên bên trái bản đồ, ngay phía bắc nhà sàn)
 
 Hồi thể lực tự nhiên giảm 10% so với trước (bù bằng thuốc).
 
+## Âm thanh, cài đặt, số liệu nổi
+
+- Âm thanh tổng hợp (không cần file âm thanh) trong `src/sfx.js`: nhặt đồ, chặt, đánh, bẫy, thu hoạch.
+- **M** tắt/bật tiếng · **G** đổi đồ họa cao/thấp (cao: vignette, bọt sóng, quầng sáng). Lưu trong `localStorage` (`trieu-settings`).
+- Icon vật phẩm trong menu chế tạo và túi đồ (`src/icons.js`).
+- Hoạt hình đi bộ 4 khung (trái, chụm, phải, chụm).
+- Số nổi trên đầu nhân vật: `+n` khi nhặt đồ, `-n` khi bị thương.
+- Các hằng số cân bằng (tốc độ, hồi sinh, bẫy, muỗi, cọc nhọn...) gom về `src/balance.js`.
+
 ## Lưu & tải
 
 Tiến trình được lưu trong `localStorage` (khoá `trieu-save-v1`): thời gian, bản đồ đã biến đổi, túi đồ, trang bị, kỹ năng, chỉ số sinh tồn, vị trí, bệnh, bẫy tôm. Mở lại trang sẽ tự tải tiến trình. Phím **P** lưu ngay, **Backspace** xoá và chơi lại.
