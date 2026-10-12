@@ -68,9 +68,11 @@ export class Survival {
     this.stamina = clamp(this.stamina + regen * dt);
 
     // Thân nhiệt: mưa, ướt, đêm làm lạnh; nhà sàn/ngủ/nắng/lửa trại làm ấm.
+    const rt = c.armor?.rainTemp ?? 1; // áo mưa / nón lá giảm lạnh khi mưa
+    const wm = c.armor?.wet ?? 1;      // áo tơi giảm ướt
     let dTemp = 0;
-    if (c.raining && !c.sheltered) dTemp -= 2;
-    if (c.wet) dTemp -= 3;
+    if (c.raining && !c.sheltered) dTemp -= 2 * rt;
+    if (c.wet) dTemp -= 3 * wm;
     if (c.night && !c.sheltered) dTemp -= 0.6;
     if (c.sheltered || c.sleeping) dTemp += 1.5;
     if (c.sunny && !c.sheltered && !c.raining) dTemp += 0.5;
@@ -98,6 +100,33 @@ export class Survival {
     if (this.malaria) this.feverClock += dt;
     this.poisonT = Math.max(0, this.poisonT - dt);
     this.fishPoisonT = Math.max(0, this.fishPoisonT - dt);
+  }
+
+  // Áp dụng hiệu ứng từ bảng vật phẩm: { hunger, thirst, stamina, hp, temp, cures[], cureMalaria }
+  applyEffect(e) {
+    if (!e) return;
+    if (e.hunger) this.hunger = clamp(this.hunger + e.hunger);
+    if (e.thirst) this.thirst = clamp(this.thirst + e.thirst);
+    if (e.stamina) this.stamina = clamp(this.stamina + e.stamina);
+    if (e.hp) this.hp = clamp(this.hp + e.hp);
+    if (e.temp) this.temp = clamp(this.temp + e.temp);
+    for (const c of e.cures ?? []) {
+      if (c === 'sick') this.sick = false;
+      if (c === 'poison') this.poisonT = 0;
+      if (c === 'fishpoison') this.fishPoisonT = 0;
+    }
+    if (e.cureMalaria) this.cureMalaria();
+  }
+
+  // Gây trạng thái bệnh từ rủi ro (ví dụ ăn cá sống).
+  addStatus(type, secs) {
+    if (type === 'fishpoison') {
+      this.fishPoisonT = secs;
+      this.events.push({ type: 'fishpoison' });
+    } else if (type === 'poison') {
+      this.poisonT = secs;
+      this.events.push({ type: 'poison' });
+    }
   }
 
   // ---- Hành động ----

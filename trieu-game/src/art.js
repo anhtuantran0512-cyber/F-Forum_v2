@@ -18,6 +18,10 @@ export const TILE_FRAME = {
   WALL: 13,
   FLOOR: 14,
   FIRE: 15,
+  SPIKE: 16,
+  LAMP: 17,
+  DRY: 18,
+  FLAG: 19,
 };
 
 const PAL = {
@@ -196,6 +200,74 @@ function drawFire(ctx, ox) {
   for (const [x, y] of [[7, 7], [8, 7], [7, 9], [8, 9]]) px(ctx, ox + x, y, PAL.flower);
 }
 
+function drawSpikes(ctx, ox) {
+  drawGrass(ctx, ox, 0);
+  for (let i = 0; i < 4; i++) {
+    const x = 2 + i * 4;
+    for (let y = 5; y < 15; y++) {
+      const w = Math.max(0, 1 - Math.floor((y - 5) / 4));
+      for (let k = -w; k <= w; k++) px(ctx, ox + x + k + 1, y, PAL.plankA);
+    }
+    px(ctx, ox + x + 1, 4, PAL.plankLine);
+  }
+  ctx.fillStyle = PAL.plankLine;
+  ctx.fillRect(ox, 14, TILE, 1);
+}
+
+function drawLamp(ctx, ox) {
+  drawGrass(ctx, ox, 1);
+  ctx.fillStyle = PAL.plankLine;
+  ctx.fillRect(ox + 7, 7, 2, 9);
+  ctx.fillStyle = PAL.ember;
+  ctx.fillRect(ox + 5, 3, 6, 5);
+  px(ctx, ox + 7, 4, PAL.flower);
+  px(ctx, ox + 8, 4, PAL.flower);
+  px(ctx, ox + 6, 5, PAL.flower);
+  px(ctx, ox + 9, 5, PAL.flower);
+  ctx.fillStyle = PAL.plankLine;
+  ctx.fillRect(ox + 5, 2, 6, 1);
+  ctx.fillRect(ox + 5, 8, 6, 1);
+}
+
+function drawDrying(ctx, ox) {
+  drawGrass(ctx, ox, 0);
+  ctx.fillStyle = PAL.plankLine;
+  ctx.fillRect(ox + 2, 4, 2, 11);
+  ctx.fillRect(ox + 12, 4, 2, 11);
+  ctx.fillRect(ox + 2, 4, 12, 1);
+  for (let i = 0; i < 3; i++) {
+    const x = 4 + i * 3;
+    ctx.fillStyle = '#c9a876';
+    ctx.fillRect(ox + x, 6, 2, 6);
+    px(ctx, ox + x, 12, '#8a6a3a');
+  }
+}
+
+function drawFlag(ctx, ox) {
+  drawGrass(ctx, ox, 1);
+  ctx.fillStyle = PAL.plankLine;
+  ctx.fillRect(ox + 4, 1, 1, 15);
+  ctx.fillStyle = '#c0503a';
+  ctx.fillRect(ox + 5, 2, 7, 5);
+  px(ctx, ox + 8, 4, PAL.flower);
+  px(ctx, ox + 7, 3, PAL.flower);
+  px(ctx, ox + 9, 3, PAL.flower);
+}
+
+function drawSnake(ctx, ox) {
+  const body = '#4f7a2e', dark = '#2a4418', belly = '#c9c86a';
+  for (let x = 2; x < 13; x++) {
+    const y = 4 + Math.round(Math.sin(x * 0.8) * 1.2);
+    px(ctx, ox + x, y, body);
+    px(ctx, ox + x, y + 1, belly);
+    if (x % 3 === 0) px(ctx, ox + x, y, dark);
+  }
+  px(ctx, ox + 13, 3, body);
+  px(ctx, ox + 14, 3, body);
+  px(ctx, ox + 14, 2, '#ff6b35');
+  px(ctx, ox + 13, 2, '#1a1a1a');
+}
+
 function drawFloor(ctx, ox) {
   for (let y = 0; y < TILE; y++) {
     for (let x = 0; x < TILE; x++) {
@@ -294,7 +366,7 @@ export function generateTextures(scene) {
 
   // ---- Tileset ----
   const tileCanvas = document.createElement('canvas');
-  tileCanvas.width = TILE * 16;
+  tileCanvas.width = TILE * 20;
   tileCanvas.height = TILE;
   const tctx = tileCanvas.getContext('2d');
   for (let f = 0; f < 4; f++) drawWater(tctx, f * TILE, f);
@@ -310,9 +382,13 @@ export function generateTextures(scene) {
   drawWall(tctx, 13 * TILE);
   drawFloor(tctx, 14 * TILE);
   drawFire(tctx, 15 * TILE);
+  drawSpikes(tctx, 16 * TILE);
+  drawLamp(tctx, 17 * TILE);
+  drawDrying(tctx, 18 * TILE);
+  drawFlag(tctx, 19 * TILE);
   tex.addCanvas('tiles', tileCanvas);
   const tTex = tex.get('tiles');
-  for (let i = 0; i < 16; i++) tTex.add(String(i), 0, i * TILE, 0, TILE, TILE);
+  for (let i = 0; i < 20; i++) tTex.add(String(i), 0, i * TILE, 0, TILE, TILE);
 
   // ---- Nhân vật: 2 frame đi bộ (32x24 gồm 2 ô 16x24) ----
   const pCanvas = document.createElement('canvas');
@@ -332,6 +408,13 @@ export function generateTextures(scene) {
   cCanvas.height = 12;
   drawCrab(cCanvas.getContext('2d'), 0);
   tex.addCanvas('crab', cCanvas);
+
+  // ---- Rắn nước ----
+  const sCanvas = document.createElement('canvas');
+  sCanvas.width = 16;
+  sCanvas.height = 8;
+  drawSnake(sCanvas.getContext('2d'), 0);
+  tex.addCanvas('snake', sCanvas);
 
   // ---- Hạt mưa (1 pixel) ----
   const rCanvas = document.createElement('canvas');
