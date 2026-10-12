@@ -61,6 +61,7 @@ export class Survival {
     // Thể lực: chạy tốn, nghỉ hồi; bệnh và đói làm hồi chậm lại.
     let regen = c.sprinting ? -14 : c.moving ? 4 : 10;
     if (regen > 0) {
+      regen *= 0.9; // cân bằng: hồi thể lực tự nhiên chậm hơn 10% (bù bằng thuốc)
       if (this.sick || this.malaria) regen *= 0.5;
       if (this.hunger <= 0) regen *= 0.5;
     }

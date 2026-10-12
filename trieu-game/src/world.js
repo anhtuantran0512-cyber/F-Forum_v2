@@ -15,6 +15,11 @@ export const FORD_Y1 = 21;
 export const TIDE_PERIOD = 100;    // giây thực tế cho 1 chu kỳ triều (demo; thiết kế gốc dài hơn)
 export const DAY_LENGTH = 240;     // giây thực tế cho 1 ngày
 export const HOUSE = { x: 8, y: 7, w: 6, h: 5 }; // nhà sàn an toàn (xa sông, trên cao)
+// Vùng Đầm Lầy (tây bắc): bùn lầy đi chậm, cây cốc, nhiều muỗi, sương mù động.
+export const SWAMP = { x0: 0, x1: 15, y0: 0, y1: 6 };
+export function inSwamp(tx, ty) {
+  return tx >= SWAMP.x0 && tx <= SWAMP.x1 && ty >= SWAMP.y0 && ty <= SWAMP.y1;
+}
 
 // PRNG có seed để bản đồ luôn giống nhau mỗi lần chơi.
 export function mulberry32(seed) {
@@ -50,6 +55,14 @@ export function buildMap(seed = 2026) {
       row.push(t);
     }
     grid.push(row);
+  }
+
+  // Đầm lầy: bùn lầy (M) là phần lớn, xen cây cốc (C) và cây (T).
+  for (let y = SWAMP.y0; y <= SWAMP.y1; y++) {
+    for (let x = SWAMP.x0; x <= SWAMP.x1; x++) {
+      const r = rnd();
+      grid[y][x] = r < 0.7 ? 'M' : r < 0.88 ? 'C' : 'T';
+    }
   }
 
   // Nhà sàn khởi đầu: tường bao quanh, cửa ở giữa cạnh dưới, sàn gỗ bên trong.

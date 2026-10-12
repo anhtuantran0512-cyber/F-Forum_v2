@@ -3,6 +3,7 @@ import { TILE, TILE_FRAME } from '../art.js';
 import {
   buildMap, MAP_W, MAP_H, HOUSE, DAY_LENGTH,
   tideLevel, tideHalfWidth, tideRising, nextLowTide, isFordRow, distToRiver, TIDE_PERIOD,
+  inSwamp, SWAMP,
 } from '../world.js';
 import { Survival } from '../survival.js';
 import { ITEMS, RECIPES, CAT_NAME, recipeName, recipeDesc } from '../items.js';
@@ -31,7 +32,13 @@ const SKILL_NAME = { dive: 'Lặn', herb: 'Thảo dược', fish: 'Chài lưới
 const BLOCK_TYPES = new Set(['T', 'R', 'X', 'K', 'SP', 'LM', 'DR', 'FLAG', 'TR']);
 const TRAP_PERIOD = 30;    // bẫy tôm: 30 giây thử một lần
 const TRAP_MAX = 5;
-const TYPE_FRAME = { P: TILE_FRAME.PLANK, K: TILE_FRAME.FIRE, SP: TILE_FRAME.SPIKE, LM: TILE_FRAME.LAMP, DR: TILE_FRAME.DRY, FLAG: TILE_FRAME.FLAG, TR: TILE_FRAME.TRAP };
+const TYPE_FRAME = {
+  P: TILE_FRAME.PLANK, K: TILE_FRAME.FIRE, SP: TILE_FRAME.SPIKE, LM: TILE_FRAME.LAMP,
+  DR: TILE_FRAME.DRY, FLAG: TILE_FRAME.FLAG, TR: TILE_FRAME.TRAP, M: TILE_FRAME.MARSH, C: TILE_FRAME.COC,
+};
+const SWAMP_MOSQ_MIN = 40;  // muỗi đầm lầy đốt mỗi 40–60 giây (ban ngày cũng có)
+const SWAMP_MOSQ_RANGE = 20;
+const MARSH_SLOW = 0.6;     // đi trên bùn lầy chậm hơn
 const RESOURCE_CATS = new Set(['resource', 'rare', 'food', 'medicine', 'ammo']);
 const MENU_TITLE = { craft: 'CHẾ TẠO  (C)', build: 'XÂY DỰNG  (B)', inv: 'TÚI ĐỒ  (I)' };
 
@@ -171,6 +178,12 @@ export default class GameScene extends Phaser.Scene {
   createFx() {
     // Lớp tối ban đêm (world-space, phủ kín khung nhìn).
     this.night = this.add.rectangle(0, 0, 10, 10, 0x06102a, 0).setDepth(40);
+    // Sương mù động phủ trên vùng đầm lầy (tầm nhìn giảm, sương dày cho nhiều rễ cốc)
+    this.fog = this.add.rectangle(
+      (SWAMP.x1 + 1) * TILE / 2, (SWAMP.y1 + 1) * TILE / 2,
+      (SWAMP.x1 + 1) * TILE, (SWAMP.y1 + 1) * TILE, 0xc8d6b8, 0,
+    ).setDepth(11);
+    this.swampMosqT = 10;
     // Mưa: các hạt rơi trong khung nhìn.
     this.rainG = this.add.graphics().setDepth(41);
     this.drops = [];
@@ -278,6 +291,12 @@ export default class GameScene extends Phaser.Scene {
     if (BLOCK_TYPES.has(t)) return true;
     if (this.isWater(tx, ty)) return !boat;
     return false;
+  }
+
+  // Hệ số tốc độ theo địa hình: bùn lầy làm chậm (trừ khi đi thuyền).
+  terrainMult() {
+    const { tx, ty } = this.playerTile();
+    return !this.onBoat && this.grid[ty]?.[tx] === 'M' ? MARSH_SLOW : 1;
   }
 
   // Hộp va chạm: x±4, y-4..y (y là đáy chân).
@@ -538,6 +557,17 @@ export default class GameScene extends Phaser.Scene {
       if (Math.random() < 0.3) { this.inv.vine++; extra = ' +1 Dây gai'; }
       this.survival.stamina -= 2;
       this.msg(`+1 Sậy (cắt sậy)${extra}`, COLOR.good);
+      this.gatherCD = 0.5;
+    } else if (t === 'C') {
+      this.grid[ty][tx] = 'G';
+      let got = 1 + (Math.random() < 0.4 ? 1 : 0);
+      if (this.fog && this.fog.alpha > 0.2 && Math.random() < 0.5) got++; // sương dày: nhiều rễ hơn
+      this.inv.rootcoc += got;
+      this.addXp('herb', 4);
+      this.survival.stamina -= 3;
+      this.respawnLater(tx, ty, 'C', RESOURCE_RESPAWN);
+      this.msg(`+${got} Rễ cốc (đào cây cốc)`, COLOR.good);
+      this.refreshCell(tx, ty);
       this.gatherCD = 0.5;
     } else if (t === 'H') {
       this.grid[ty][tx] = 'G';
@@ -983,6 +1013,7 @@ export default class GameScene extends Phaser.Scene {
     let speed = WALK_SPEED * this.survival.speedMult() * armor.speed;
     if (this.sprinting) speed *= SPRINT_MULT;
     if (this.onBoat) speed *= BOAT_SPEED_MULT;
+    speed *= this.terrainMult();
     this.movePlayer(dx * speed * dt, dy * speed * dt);
   }
 
@@ -1036,6 +1067,13 @@ export default class GameScene extends Phaser.Scene {
     const { tx, ty } = this.playerTile();
     const here = this.grid[ty]?.[tx];
     const night = this.darkness() > 0.5;
+    if (inSwamp(tx, ty) && here !== 'F') {
+      this.swampMosqT -= dt;
+      if (this.swampMosqT <= 0) {
+        this.swampMosqT = SWAMP_MOSQ_MIN + Math.random() * SWAMP_MOSQ_RANGE;
+        if (!this.nearTile('LM', LAMP_RANGE) && !this.survival.malaria) this.survival.bitten();
+      }
+    }
     if (night && here !== 'F' && distToRiver(tx) <= MOSQUITO_RANGE && !this.survival.malaria && !this.nearTile('LM', LAMP_RANGE)) {
       this.mosqT -= dt;
       if (this.mosqT <= 0) {
@@ -1255,6 +1293,10 @@ export default class GameScene extends Phaser.Scene {
     let alpha = dark * 0.55 + (this.raining ? 0.1 : 0);
     if (this.survival.insomnia) alpha += 0.06 + 0.04 * Math.sin(this.t * 17);
     this.night.setPosition(cx, cy).setSize(v.width + 40, v.height + 40).setAlpha(Phaser.Math.Clamp(alpha, 0, 0.85));
+
+    // Sương mù động: đậm nhạt theo thời gian, dày hơn khi mưa
+    const fogA = 0.16 + 0.1 * Math.sin(this.t / 9) + (this.raining ? 0.08 : 0);
+    this.fog.setAlpha(Phaser.Math.Clamp(fogA, 0, 0.4));
 
     // Mưa
     this.rainG.clear();

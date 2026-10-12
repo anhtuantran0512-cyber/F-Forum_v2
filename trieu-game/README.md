@@ -47,12 +47,19 @@ Dữ liệu là một bảng duy nhất: thêm vật phẩm/công thức chỉ c
 - **Vũ khí**: Mã tấu, Giáo tre (mạnh cạnh nước), Dao đá (nhanh), Chùy đá (nặng), Cung tre + Mũi tên (bắn xa)
 - **Trang bị**: Nón lá (giảm lạnh khi mưa), Áo tơi (giảm lạnh + ướt), Áo giáp tre (giảm sát thương cua/rắn 50%), Giày gỗ (đi nhanh hơn)
 - **Phương tiện**: Thuyền độc mộc (đi trên sông)
+- **Đầm lầy** (tây bắc, nguyên liệu): Rễ cốc (đào cây cốc), Cao cốc (2 rễ + 1 thảo dược), Thuốc cốc (cao cốc + 2 rễ + 1 vỏ đắng, cần bếp lửa và Thảo dược Lv12; chữa sốt rét, hồi máu)
 - **Thuỷ sản**: Tôm sông (từ bẫy tôm, đói ít, tốn ít thể lực)
 - **Công trình** (menu B): Sàn tre, Bếp lửa, Cọc nhọn (đâm cua), Đèn xua muỗi, Giàn phơi cá, Cờ làng, **Bẫy tôm** (đặt xuống nước sâu)
 
 **Bẫy tôm**: đứng trên bờ quay mặt về ô nước sâu rồi dựng bẫy (menu B). Mỗi 30 giây có 60% khả năng bắt được 1 tôm, chứa tối đa 5 con. Quay lại đứng gần bẫy và nhấn Space để thu.
 
 Một số công thức cần trạm: **Bếp lửa** (K) cho than, trà gừng, cá nướng, cua nướng, canh ốc; **Giàn phơi** (DR) cho cá khô. Thuốc Sốt cần Thảo dược Lv10.
+
+## Vùng Đầm Lầy (Đợt 4)
+
+Vùng tây bắc (góc trên bên trái bản đồ, ngay phía bắc nhà sàn). Bùn lầy làm chậm di chuyển (60%), cây cốc cho Rễ cốc và hồi sinh sau 90 giây, sương mù động phủ lên vùng và dày hơn khi mưa (sương dày có thêm rễ cốc). Muỗi đầm lầy đốt cả ban ngày, mỗi 40–60 giây, 25% nhiễm sốt rét; đèn xua muỗi vẫn bảo vệ được trong bán kính 4 ô.
+
+Hồi thể lực tự nhiên giảm 10% so với trước (bù bằng thuốc).
 
 ## Lưu & tải
 
@@ -72,7 +79,7 @@ Tiến trình được lưu trong `localStorage` (khoá `trieu-save-v1`): thời
 
 ## Chưa có (để các bước sau)
 
-Multiplayer/Colyseus, nhiều vùng bản đồ và chunk loading, độ bền vũ khí, clan & raid, boss, chợ nổi, hang ngầm, trồng thảo dược, thời tiết cực đoan, Lặn dưới nước, đầm lầy, lưới đánh cá, nhiệm vụ làng (hiện Lặn chỉ tăng sát thương và tỉ lệ nhặt san hô).
+Multiplayer/Colyseus, clan & raid, chợ nổi, boss, hang ngầm, nhiệm vụ làng, chó giữ nhà, quái đầm lầy (Ma Da), sự kiện theo mùa, thời tiết cực đoan (xem `ROADMAP.md`) (hiện Lặn chỉ tăng sát thương và tỉ lệ nhặt san hô).
 
 ## Cấu trúc
 

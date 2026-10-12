@@ -23,6 +23,8 @@ export const TILE_FRAME = {
   DRY: 18,
   FLAG: 19,
   TRAP: 20,
+  MARSH: 21,
+  COC: 22,
 };
 
 const PAL = {
@@ -375,12 +377,34 @@ function drawCrab(ctx, ox) {
   }
 }
 
+function drawMarsh(ctx, ox) {
+  fillTile(ctx, ox, '#3d4a2a');
+  speckle(ctx, ox, ['#4f5e33', '#2e3820', '#5b6b3a'], 90, 21);
+  // bong bóng khí và vệt nước đọng
+  px(ctx, ox + 4, 6, '#8fb3a0');
+  px(ctx, ox + 11, 11, '#8fb3a0');
+  for (let x = 2; x < 14; x++) px(ctx, ox + x, 13, (x % 3) ? '#2a3a4a' : '#3d5566');
+}
+
+function drawCoc(ctx, ox) {
+  drawMarsh(ctx, ox);
+  // thân và tán cây cốc (lá dài, hoa tím nhạt)
+  ctx.fillStyle = '#4a6a2a';
+  ctx.fillRect(ox + 7, 8, 2, 7);
+  const leaves = [[4, 7], [5, 6], [6, 5], [9, 5], [10, 6], [11, 7], [3, 9], [12, 9]];
+  for (const [x, y] of leaves) px(ctx, ox + x, y, '#7fae4a');
+  px(ctx, ox + 7, 4, '#b58ad6');
+  px(ctx, ox + 8, 3, '#b58ad6');
+  px(ctx, ox + 6, 14, '#6b4a2a');
+  px(ctx, ox + 9, 14, '#6b4a2a');
+}
+
 export function generateTextures(scene) {
   const tex = scene.textures;
 
   // ---- Tileset ----
   const tileCanvas = document.createElement('canvas');
-  tileCanvas.width = TILE * 21;
+  tileCanvas.width = TILE * 23;
   tileCanvas.height = TILE;
   const tctx = tileCanvas.getContext('2d');
   for (let f = 0; f < 4; f++) drawWater(tctx, f * TILE, f);
@@ -401,9 +425,11 @@ export function generateTextures(scene) {
   drawDrying(tctx, 18 * TILE);
   drawFlag(tctx, 19 * TILE);
   drawTrap(tctx, 20 * TILE);
+  drawMarsh(tctx, 21 * TILE);
+  drawCoc(tctx, 22 * TILE);
   tex.addCanvas('tiles', tileCanvas);
   const tTex = tex.get('tiles');
-  for (let i = 0; i < 21; i++) tTex.add(String(i), 0, i * TILE, 0, TILE, TILE);
+  for (let i = 0; i < 23; i++) tTex.add(String(i), 0, i * TILE, 0, TILE, TILE);
 
   // ---- Nhân vật: 2 frame đi bộ (32x24 gồm 2 ô 16x24) ----
   const pCanvas = document.createElement('canvas');

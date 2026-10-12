@@ -25,6 +25,7 @@ export const ITEMS = {
   bark:    { name: 'Vỏ cây đắng', cat: 'resource', desc: 'Vỏ cây đắng, nguyên liệu Thuốc Sốt.' },
   shell:   { name: 'Ốc hến', cat: 'resource', desc: 'Ốc hến ở bãi cạn, chỉ mò được lúc triều thấp.' },
   charcoal:{ name: 'Than củi', cat: 'resource', desc: 'Than nung từ gỗ bên bếp lửa.' },
+  rootcoc: { name: 'Rễ cốc', cat: 'resource', desc: 'Rễ cây cốc mọc trong đầm lầy. Nguyên liệu thuốc đầm.' },
 
   // ---- Hiếm (theo triều / kỹ năng) ----
   pearl:   { name: 'Ngọc trai', cat: 'rare', desc: 'Hiếm — chỉ mò được trên bãi cạn lúc triều thấp.' },
@@ -50,6 +51,8 @@ export const ITEMS = {
   bandage:     { name: 'Lá băng bó', cat: 'medicine', desc: 'Giã lá đắp vết thương. Hồi máu.', use: { hp: 30 } },
   ginger:      { name: 'Trà gừng', cat: 'medicine', desc: 'Trà gừng nóng, đuổi lạnh và chữa Cảm Triều.', use: { temp: 25, cures: ['sick'] } },
   charcoalPill:{ name: 'Viên than hoạt', cat: 'medicine', desc: 'Than hoạt giải độc nước.', use: { cures: ['poison'] } },
+  caoCoc:      { name: 'Cao cốc', cat: 'medicine', desc: 'Cao đắng từ rễ cốc. Hồi thể lực, chữa Cảm Triều.', use: { stamina: 20, cures: ['sick'] } },
+  thuocCoc:    { name: 'Thuốc cốc', cat: 'medicine', desc: 'Thuốc đầm lầy mạnh hơn Thuốc Sốt: chữa sốt rét và hồi máu.', use: { cureMalaria: true, hp: 15 } },
 
   // ---- Vũ khí ----
   machete: { name: 'Mã tấu', cat: 'weapon', desc: 'Cân bằng mọi địa hình. Vũ khí khởi đầu.',
@@ -99,6 +102,8 @@ export const RECIPES = [
   { out: 'feverMed', n: 1, need: { herb: 3, wood: 1 }, skill: { k: 'herb', lv: 10 } },
   { out: 'ginger', n: 1, need: { herb: 2, wood: 1 }, station: 'K' },
   { out: 'charcoalPill', n: 1, need: { charcoal: 1, herb: 1 } },
+  { out: 'caoCoc', n: 1, need: { rootcoc: 2, herb: 1 } },
+  { out: 'thuocCoc', n: 1, need: { caoCoc: 1, rootcoc: 2, bark: 1 }, station: 'K', skill: { k: 'herb', lv: 12 } },
 
   // Nung nấu & chế biến
   { out: 'charcoal', n: 1, need: { wood: 2 }, station: 'K' },
