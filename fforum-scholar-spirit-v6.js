@@ -16,10 +16,10 @@
   const PALETTES = {
     solar: {
       name: 'Trạng Nguyên Chu Sa',
-      hi1: '#f97316', hi2: '#dc2626', hiDeep: '#991b1b', tancho: '#dc2626',
+      hi1: '#ef4444', hi2: '#dc2626', hiDeep: '#991b1b', tancho: '#dc2626',
       rimLight: 'rgba(255,255,255,0.9)', rimDark: 'rgba(120,53,15,0.35)',
       gold: '#fde047', bodyEdge: '#cbd5e1', bodyHi: '#ffffff', belly: '#fff7ed',
-      finA: 'rgba(255,248,240,0.85)', finB: 'rgba(253,224,175,0.28)',
+      finA: 'rgba(255,255,255,0.94)', finB: 'rgba(255,255,255,0.52)',
       ink: 'rgba(51,65,85,0.66)', inkSoft: 'rgba(100,116,139,0.5)',
       moteDark: '253,224,71', moteGold: '251,146,60',
       ribbon: '234,88,12', ribbonSoft: '251,146,60', headGlow: '#fb923c', horn: '#fde047'
@@ -29,7 +29,7 @@
       hi1: '#38bdf8', hi2: '#4f46e5', hiDeep: '#1e3a8a', tancho: '#2563eb',
       rimLight: 'rgba(255,255,255,0.92)', rimDark: 'rgba(30,58,138,0.35)',
       gold: '#bae6fd', bodyEdge: '#cbd5e1', bodyHi: '#f8fafc', belly: '#f0f9ff',
-      finA: 'rgba(240,249,255,0.85)', finB: 'rgba(186,230,253,0.3)',
+      finA: 'rgba(255,255,255,0.94)', finB: 'rgba(224,242,254,0.5)',
       ink: 'rgba(30,41,59,0.66)', inkSoft: 'rgba(71,85,105,0.5)',
       moteDark: '165,243,252', moteGold: '253,224,71',
       ribbon: '56,189,248', ribbonSoft: '125,211,252', headGlow: '#67e8f9', horn: '#fde047'
@@ -39,7 +39,7 @@
       hi1: '#10b981', hi2: '#047857', hiDeep: '#064e3b', tancho: '#059669',
       rimLight: 'rgba(255,255,255,0.9)', rimDark: 'rgba(6,78,59,0.35)',
       gold: '#a7f3d0', bodyEdge: '#cbd5e1', bodyHi: '#f0fdf4', belly: '#ecfdf5',
-      finA: 'rgba(240,253,244,0.85)', finB: 'rgba(167,243,208,0.3)',
+      finA: 'rgba(255,255,255,0.94)', finB: 'rgba(220,252,231,0.5)',
       ink: 'rgba(15,60,45,0.66)', inkSoft: 'rgba(52,120,95,0.5)',
       moteDark: '110,231,183', moteGold: '253,224,71',
       ribbon: '16,185,129', ribbonSoft: '52,211,153', headGlow: '#6ee7b7', horn: '#fcd34d'
@@ -49,7 +49,7 @@
       hi1: '#fef08a', hi2: '#ca8a04', hiDeep: '#a16207', tancho: '#dc2626',
       rimLight: 'rgba(255,255,255,0.95)', rimDark: 'rgba(161,98,7,0.3)',
       gold: '#facc15', bodyEdge: '#e2e8f0', bodyHi: '#ffffff', belly: '#fffef7',
-      finA: 'rgba(255,255,252,0.88)', finB: 'rgba(254,240,138,0.3)',
+      finA: 'rgba(255,255,255,0.95)', finB: 'rgba(254,249,195,0.55)',
       ink: 'rgba(113,63,18,0.6)', inkSoft: 'rgba(161,98,7,0.42)',
       moteDark: '254,249,195', moteGold: '234,179,8',
       ribbon: '202,138,4', ribbonSoft: '250,204,21', headGlow: '#fef08a', horn: '#fde047'
@@ -59,7 +59,7 @@
       hi1: '#475569', hi2: '#1e293b', hiDeep: '#0f172a', tancho: '#dc2626',
       rimLight: 'rgba(248,250,252,0.85)', rimDark: 'rgba(15,23,42,0.45)',
       gold: '#e2e8f0', bodyEdge: '#cbd5e1', bodyHi: '#f8fafc', belly: '#f1f5f9',
-      finA: 'rgba(241,245,249,0.82)', finB: 'rgba(148,163,184,0.3)',
+      finA: 'rgba(248,250,252,0.92)', finB: 'rgba(226,232,240,0.55)',
       ink: 'rgba(15,23,42,0.72)', inkSoft: 'rgba(51,65,85,0.5)',
       moteDark: '226,232,240', moteGold: '239,68,68',
       ribbon: '71,85,105', ribbonSoft: '148,163,184', headGlow: '#f87171', horn: '#ef4444'
@@ -69,7 +69,7 @@
       hi1: '#f59e0b', hi2: '#b45309', hiDeep: '#92400e', tancho: '#ef4444',
       rimLight: 'rgba(255,255,255,0.95)', rimDark: 'rgba(146,64,14,0.38)',
       gold: '#fef08a', bodyEdge: '#fcd34d', bodyHi: '#fffbeb', belly: '#fef3c7',
-      finA: 'rgba(254,243,199,0.9)', finB: 'rgba(251,191,36,0.34)',
+      finA: 'rgba(255,251,235,0.95)', finB: 'rgba(253,230,138,0.6)',
       ink: 'rgba(120,53,15,0.66)', inkSoft: 'rgba(180,83,9,0.5)',
       moteDark: '254,240,138', moteGold: '251,191,36',
       ribbon: '245,158,11', ribbonSoft: '253,224,71', headGlow: '#fde047', horn: '#fef08a'
@@ -270,7 +270,7 @@
   };
 
   /* ============================================================
-     PHẦN 1 — SPRITE KOI SIÊU CHI TIẾT (vẽ offscreen, cache lại)
+     PHẦN 1 — SPRITE KOI MINH HỌA CAO CẤP (vẽ offscreen, cache)
      ============================================================ */
   const IW = 1280, IH = 560, AXIS_V = 0.5, NOSE_U = 0.075;
   const spriteCv = document.createElement('canvas');
@@ -284,45 +284,214 @@
            Math.cos(x * 73.5 + y * 61.7) * 0.10;
   }
 
-  /* Nửa bề cao thân theo u (0..1), đường cong giải phẫu mềm mại */
+  /* ---- Đường cong giải phẫu thân Koi: đầu tù tròn, mập, bụng phình, đuôi thon ---- */
+  const NOSE_TIP_U = 0.05;
+  const HW_KEYS = [
+    [0.05, 0], [0.064, 13], [0.085, 28], [0.115, 48], [0.155, 66], [0.21, 80],
+    [0.29, 104], [0.39, 122], [0.49, 127], [0.59, 116], [0.69, 93],
+    [0.765, 64], [0.815, 37], [0.848, 14], [0.864, 0]
+  ];
+  function smoothStep(t) { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); }
   function koiHalfWidth(u) {
-    if (u <= 0.055) return 0;
-    if (u < 0.12) { const t = (u - 0.055) / 0.065; return 4 + 28 * Math.pow(Math.sin(t * Math.PI / 2), 0.8); }
-    if (u < 0.20) { const t = (u - 0.12) / 0.08; return 32 + 26 * Math.sin(t * Math.PI / 2); }
-    if (u < 0.34) { const t = (u - 0.20) / 0.14; return 58 + 20 * Math.sin(t * Math.PI / 2); }
-    if (u < 0.62) { const t = (u - 0.34) / 0.28; return 78 - 5 * t - 3 * Math.sin(t * Math.PI); }
-    if (u < 0.80) { const t = (u - 0.62) / 0.18; return 73 * Math.pow(1 - t, 1.22) + 14; }
-    if (u < 0.84) { const t = (u - 0.80) / 0.04; return 14 - 5 * t; }
+    if (u <= HW_KEYS[0][0]) return 0;
+    for (let i = 0; i < HW_KEYS.length - 1; i++) {
+      const a = HW_KEYS[i], b = HW_KEYS[i + 1];
+      if (u <= b[0]) {
+        const t = smoothStep((u - a[0]) / (b[0] - a[0]));
+        return a[1] + (b[1] - a[1]) * t;
+      }
+    }
     return 0;
   }
-  function topMul(u) { return u < 0.2 ? 1 : (u < 0.62 ? 0.93 : 1.0); }
-  function bellyMul(u) { return u < 0.18 ? 0.96 : (u < 0.66 ? 1.08 : 1.0); }
+  /* lưng thấp hơn trục, bụng phình; cả hai tiến về 1 ở đầu và đuôi để không có khấc */
+  function topMul(u) {
+    if (u < 0.2) return 0.84 + 0.16 * smoothStep((u - 0.05) / 0.15);
+    if (u > 0.7) return 1 - 0.1 * smoothStep((u - 0.7) / 0.16);
+    return 1;
+  }
+  function bellyMul(u) {
+    if (u < 0.18) return 0.96 + 0.04 * smoothStep((u - 0.05) / 0.13);
+    if (u > 0.72) return 1 + 0.14 * (1 - smoothStep((u - 0.72) / 0.14));
+    return 1 + 0.16 * Math.sin(((u - 0.18) / 0.54) * Math.PI);
+  }
 
   function traceBody(ctx) {
+    const cy = IH * AXIS_V;
     ctx.beginPath();
-    const step = 0.004;
-    let first = true;
-    for (let u = 0.055; u <= 0.84; u += step) {
-      const hw = koiHalfWidth(u), x = u * IW;
-      if (first) { ctx.moveTo(x, 280 - hw * topMul(u)); first = false; }
-      else ctx.lineTo(x, 280 - hw * topMul(u));
+    const step = 0.0032, first = 0.064, last = 0.862;
+    /* mõm tù tròn: nắp cong ở đầu thay cho nhọn */
+    const noseX = NOSE_TIP_U * IW;
+    ctx.moveTo(noseX + 4, cy);
+    ctx.quadraticCurveTo(noseX + 2, cy - 4, first * IW, cy - koiHalfWidth(first) * topMul(first));
+    for (let u = first + step; u <= last; u += step) {
+      ctx.lineTo(u * IW, cy - koiHalfWidth(u) * topMul(u));
     }
-    for (let u = 0.84; u >= 0.055; u -= step) {
-      const hw = koiHalfWidth(u);
-      ctx.lineTo(u * IW, 280 + hw * bellyMul(u));
+    for (let u = last; u >= first; u -= step) {
+      ctx.lineTo(u * IW, cy + koiHalfWidth(u) * bellyMul(u));
     }
+    ctx.quadraticCurveTo(noseX + 2, cy + 4, noseX + 4, cy);
     ctx.closePath();
   }
 
-  /* Tia vây lụa: các đường quạt cong mảnh, có xương chính đậm hơn */
-  function finRays(ctx, rx, ry, a0, a1, n, lenFn, bend) {
+  function hexToRgba(hex, a) {
+    const h = (hex || '#ffffff').replace('#', '');
+    const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+
+  /* ---- Mảng đỏ Kohaku: dải màu quét dọc thân, viền mềm hữu cơ, sạch & sâu ---- */
+  const KOHAKU_PATCHES = [
+    { ux: 0.285, yo: -24, rx: 112, ry: 72, rot: -0.07, seed: 2.1 },
+    { ux: 0.505, yo: 28, rx: 128, ry: 68, rot: 0.05, seed: 5.4 },
+    { ux: 0.69, yo: -16, rx: 68, ry: 50, rot: -0.05, seed: 8.9 }
+  ];
+  function blobPath(ctx, cx, cy, rx, ry, seed, rot) {
+    const N = 14, cr = Math.cos(rot || 0), sr = Math.sin(rot || 0);
+    const pts = [];
+    for (let i = 0; i < N; i++) {
+      const a = (i / N) * Math.PI * 2;
+      const w = 1 + organicNoise(Math.cos(a) * 1.3 + seed, Math.sin(a) * 1.3 - seed) * 0.13;
+      const px = Math.cos(a) * rx * w, py = Math.sin(a) * ry * w;
+      pts.push([cx + px * cr - py * sr, cy + px * sr + py * cr]);
+    }
+    ctx.beginPath();
+    ctx.moveTo((pts[0][0] + pts[N - 1][0]) / 2, (pts[0][1] + pts[N - 1][1]) / 2);
+    for (let i = 0; i < N; i++) {
+      const p = pts[i], q = pts[(i + 1) % N];
+      ctx.quadraticCurveTo(p[0], p[1], (p[0] + q[0]) / 2, (p[1] + q[1]) / 2);
+    }
+    ctx.closePath();
+  }
+  function inPatch(x, y) {
+    const cy = IH * AXIS_V;
+    for (const p of KOHAKU_PATCHES) {
+      const cx = p.ux * IW, cyy = cy + p.yo;
+      const dx = x - cx, dy = y - cyy, cr = Math.cos(-p.rot), sr = Math.sin(-p.rot);
+      const lx = dx * cr - dy * sr, ly = dx * sr + dy * cr;
+      if ((lx / (p.rx * 0.98)) ** 2 + (ly / (p.ry * 0.98)) ** 2 < 1) return true;
+    }
+    return false;
+  }
+
+  function drawHiPattern(ctx, pal, breed) {
+    if (breed === 'gold') return;
+    const cy = IH * AXIS_V;
+    ctx.save();
+    traceBody(ctx); ctx.clip();
+    const patches = breed === 'white' ? [] : KOHAKU_PATCHES;
+    patches.forEach(p => {
+      const cx = p.ux * IW, cyy = cy + p.yo, R = Math.max(p.rx, p.ry);
+      const g = ctx.createRadialGradient(cx - p.rx * 0.18, cyy - p.ry * 0.3, 8, cx, cyy, R);
+      g.addColorStop(0, pal.hi2);
+      g.addColorStop(0.55, pal.hi1);
+      g.addColorStop(0.82, hexToRgba(pal.hi1, 0.72));
+      g.addColorStop(1, hexToRgba(pal.hi1, 0));
+      blobPath(ctx, cx, cyy, p.rx, p.ry, p.seed, p.rot);
+      ctx.fillStyle = g;
+      ctx.fill();
+      /* lõi đặc sâu màu, nhỏ lại để viền vẫn mềm tan vào thân trắng */
+      const g2 = ctx.createRadialGradient(cx, cyy, 4, cx, cyy, R * 0.8);
+      g2.addColorStop(0, hexToRgba(pal.hi2, 0.92));
+      g2.addColorStop(0.7, hexToRgba(pal.hi2, 0.55));
+      g2.addColorStop(1, hexToRgba(pal.hi2, 0));
+      blobPath(ctx, cx, cyy, p.rx * 0.88, p.ry * 0.86, p.seed, p.rot);
+      ctx.fillStyle = g2;
+      ctx.fill();
+    });
+
+    /* Ấn Tancho: chấm tròn nằm gọn trên đỉnh trán */
+    if (breed !== 'gold') {
+      const tx = 0.155 * IW, ty = cy - 46, tr = breed === 'white' ? 10 : 16;
+      const tg = ctx.createRadialGradient(tx - 3, ty - 4, 2, tx, ty, tr * 1.2);
+      tg.addColorStop(0, pal.hi1);
+      tg.addColorStop(0.65, pal.tancho);
+      tg.addColorStop(1, hexToRgba(pal.tancho, 0));
+      ctx.fillStyle = tg;
+      ctx.beginPath(); ctx.arc(tx, ty, tr, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  /* ---- Vảy: mỏng, óng ánh, chỉ thấy lưỡi liềm rất nhẹ ---- */
+  function drawScales(ctx, pal, breed, skin) {
+    const cy = IH * AXIS_V;
+    ctx.save();
+    traceBody(ctx); ctx.clip();
+    const cols = 34;
+    for (let c = 0; c <= cols; c++) {
+      const u = 0.2 + (c / cols) * 0.6;
+      const x = u * IW, hw = koiHalfWidth(u);
+      const r = 10.5 + Math.sin((1 - c / cols) * Math.PI) * 2.5;
+      const rows = Math.ceil(hw / (r * 0.82));
+      for (let rr = -rows; rr <= rows; rr++) {
+        const yOff = (rr + (c % 2) * 0.5) * (r * 0.84);
+        if (Math.abs(yOff) > hw * 0.96) continue;
+        const y = cy + yOff;
+        const onHi = breed !== 'gold' && breed !== 'white' && inPatch(x, y);
+        ctx.save();
+        ctx.translate(x, y);
+        /* ánh ngọc mờ từng vảy — chỉ trên nền thân, không vẽ lên mảng đỏ */
+        if (!onHi && (c + rr) % 2 === 0) {
+          const sg = ctx.createRadialGradient(-r * 0.2, -r * 0.25, 1, 0, 0, r * 1.15);
+          if (breed === 'gold') sg.addColorStop(0, 'rgba(255,251,235,0.28)');
+          else sg.addColorStop(0, 'rgba(255,255,255,0.16)');
+          sg.addColorStop(1, 'rgba(255,255,255,0)');
+          ctx.fillStyle = sg;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, r * 1.05, r * 0.85, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        /* lưỡi liềm vảy mảnh, gần như ẩn trên mảng đỏ */
+        ctx.strokeStyle = onHi
+          ? 'rgba(255,255,255,0.16)'
+          : (breed === 'gold' ? 'rgba(146,64,14,0.2)' : (skin === 'kintsugi' ? 'rgba(202,138,4,0.22)' : 'rgba(71,85,105,0.14)'));
+        ctx.lineWidth = 0.85;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, r * 1.02, r * 0.82, 0, Math.PI * 0.2, Math.PI * 0.8);
+        ctx.stroke();
+        /* đốm bắt sáng hiếm */
+        if ((c * 5 + rr * 11) % 17 === 0) {
+          ctx.fillStyle = 'rgba(255,255,255,0.85)';
+          ctx.beginPath(); ctx.arc(-r * 0.3, -r * 0.3, 1, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+    ctx.restore();
+  }
+
+  /* ---- Đường bên + lỗ cảm giác mảnh ---- */
+  function drawLateralLine(ctx, pal) {
+    const cy = IH * AXIS_V;
+    ctx.save();
+    traceBody(ctx); ctx.clip();
+    ctx.strokeStyle = 'rgba(71,85,105,0.16)';
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    for (let u = 0.21; u <= 0.8; u += 0.012) {
+      const x = u * IW, y = cy + Math.sin(u * 20) * 2.5 + 3;
+      if (u === 0.21) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(71,85,105,0.22)';
+    for (let u = 0.215; u <= 0.79; u += 0.02) {
+      const x = u * IW, y = cy + Math.sin(u * 20) * 2.5 + 3;
+      ctx.beginPath(); ctx.arc(x, y, 1.2, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  /* ---- Tia vây lụa mềm ---- */
+  function finRays(ctx, rx, ry, a0, a1, n, lenFn, alpha) {
     for (let i = 0; i < n; i++) {
       const f = n === 1 ? 0 : i / (n - 1);
       const ang = a0 + (a1 - a0) * f;
       const len = lenFn(f);
-      const mx = rx + Math.cos(ang) * len * 0.52 + Math.cos(ang + bend) * len * 0.12;
-      const my = ry + Math.sin(ang) * len * 0.52 + Math.sin(ang + bend) * len * 0.12;
+      const mx = rx + Math.cos(ang) * len * 0.55;
+      const my = ry + Math.sin(ang) * len * 0.55;
       const ex = rx + Math.cos(ang) * len, ey = ry + Math.sin(ang) * len;
+      ctx.strokeStyle = 'rgba(255,255,255,' + (alpha * (i === Math.floor(n / 2) ? 1.5 : 1)) + ')';
+      ctx.lineWidth = i === Math.floor(n / 2) ? 1.7 : 0.9;
       ctx.beginPath();
       ctx.moveTo(rx, ry);
       ctx.quadraticCurveTo(mx, my, ex, ey);
@@ -334,352 +503,246 @@
     const cy = IH * AXIS_V;
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
 
-    /* --- Vây đuôi (caudal) lớn, xẻ thùy kép --- */
+    /* --- Vây đuôi: quạt kép thùy mềm, lụa trắng trong --- */
     ctx.save();
+    const rootX = 0.83 * IW;
     ctx.beginPath();
-    const tailRootX = 0.805 * IW, pedX = 0.835 * IW;
-    ctx.moveTo(tailRootX, cy - 13);
-    ctx.bezierCurveTo(0.86 * IW, cy - 60, 0.92 * IW, cy - 118, 0.985 * IW, cy - 128);
-    ctx.quadraticCurveTo(0.95 * IW, cy - 60, 0.905 * IW, cy - 9);
-    ctx.quadraticCurveTo(0.95 * IW, cy + 60, 0.985 * IW, cy + 128);
-    ctx.bezierCurveTo(0.92 * IW, cy + 118, 0.86 * IW, cy + 60, pedX, cy + 13);
+    ctx.moveTo(rootX, cy - 12);
+    ctx.bezierCurveTo(0.875 * IW, cy - 72, 0.93 * IW, cy - 122, 0.985 * IW, cy - 128);
+    ctx.quadraticCurveTo(0.955 * IW, cy - 62, 0.912 * IW, cy - 14);
+    ctx.quadraticCurveTo(0.9 * IW, cy, 0.912 * IW, cy + 14);
+    ctx.quadraticCurveTo(0.955 * IW, cy + 62, 0.985 * IW, cy + 128);
+    ctx.bezierCurveTo(0.93 * IW, cy + 122, 0.875 * IW, cy + 72, rootX, cy + 12);
     ctx.closePath();
-    const tg = ctx.createLinearGradient(tailRootX, cy, 0.985 * IW, cy);
-    tg.addColorStop(0, pal.finA); tg.addColorStop(0.55, pal.finB); tg.addColorStop(1, 'rgba(255,255,255,0.02)');
+    const tg = ctx.createLinearGradient(rootX, cy, 0.985 * IW, cy);
+    tg.addColorStop(0, pal.finA); tg.addColorStop(0.62, 'rgba(255,255,255,0.7)'); tg.addColorStop(1, 'rgba(255,255,255,0.4)');
     ctx.fillStyle = tg; ctx.fill();
     ctx.clip();
-    ctx.strokeStyle = pal.rimLight;
-    finRays(ctx, tailRootX + 14, cy, -2.35, -0.78, 13, f => 150 + Math.sin(f * Math.PI) * 42, -0.25);
-    ctx.lineWidth = 1.5;
-    finRays(ctx, tailRootX + 14, cy, 0.78, 2.35, 13, f => 150 + Math.sin(f * Math.PI) * 42, 0.25);
+    finRays(ctx, rootX + 8, cy, -2.32, -0.85, 11, f => 138 + Math.sin(f * Math.PI) * 40, 0.4);
+    finRays(ctx, rootX + 8, cy, 0.85, 2.32, 11, f => 138 + Math.sin(f * Math.PI) * 40, 0.4);
     ctx.restore();
     ctx.save();
-    ctx.strokeStyle = pal.inkSoft; ctx.lineWidth = 1.3;
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.2;
     ctx.beginPath();
-    ctx.moveTo(tailRootX, cy - 13);
-    ctx.bezierCurveTo(0.86 * IW, cy - 60, 0.92 * IW, cy - 118, 0.985 * IW, cy - 128);
-    ctx.moveTo(pedX, cy + 13);
-    ctx.bezierCurveTo(0.86 * IW, cy + 60, 0.92 * IW, cy + 118, 0.985 * IW, cy + 128);
+    ctx.moveTo(rootX, cy - 12);
+    ctx.bezierCurveTo(0.875 * IW, cy - 72, 0.93 * IW, cy - 122, 0.985 * IW, cy - 128);
+    ctx.moveTo(rootX, cy + 12);
+    ctx.bezierCurveTo(0.875 * IW, cy + 72, 0.93 * IW, cy + 122, 0.985 * IW, cy + 128);
     ctx.stroke();
     ctx.restore();
 
-    /* --- Vây lưng (dorsal) răng cường mềm --- */
+    /* --- Vây lưng: cánh buồm cong mượt, trắng trong, mép sáng --- */
     ctx.save();
+    const d0 = 0.26 * IW, d1 = 0.68 * IW;
+    const dorsalTop = u => cy - koiHalfWidth(u) * topMul(u) - (30 + 26 * Math.sin(Math.max(0, Math.min(1, (u - 0.26) / 0.42)) * Math.PI));
     ctx.beginPath();
-    const d0 = 0.26 * IW, d1 = 0.65 * IW;
     ctx.moveTo(d0, cy - koiHalfWidth(0.26) * topMul(0.26) + 2);
-    const peaks = 7;
-    for (let i = 1; i <= peaks; i++) {
-      const u = 0.26 + (0.65 - 0.26) * (i / peaks);
-      const x = u * IW;
-      const h = 26 + Math.sin((i / peaks) * Math.PI) * 14;
-      ctx.quadraticCurveTo(x - 14, cy - koiHalfWidth(u) * topMul(u) - h * 0.7, x, cy - koiHalfWidth(u) * topMul(u) - h);
-    }
-    ctx.lineTo(d1, cy - koiHalfWidth(0.65) * topMul(0.65) + 2);
+    ctx.quadraticCurveTo(0.44 * IW, dorsalTop(0.44), d1, cy - koiHalfWidth(0.68) * topMul(0.68) + 2);
     ctx.closePath();
-    const dg = ctx.createLinearGradient(0, cy - 90, 0, cy);
-    dg.addColorStop(0, pal.finB); dg.addColorStop(1, pal.finA);
+    const dg = ctx.createLinearGradient(0, cy - 140, 0, cy);
+    dg.addColorStop(0, 'rgba(255,255,255,0.92)');
+    dg.addColorStop(0.55, 'rgba(255,255,255,0.82)');
+    dg.addColorStop(1, pal.finA);
     ctx.fillStyle = dg; ctx.fill();
     ctx.clip();
-    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 0.9;
     for (let i = 0; i < 16; i++) {
-      const u = 0.27 + i * 0.023, x = u * IW;
+      const u = 0.275 + i * 0.025, x = u * IW;
       ctx.beginPath();
       ctx.moveTo(x, cy - koiHalfWidth(u) * topMul(u));
-      ctx.lineTo(x - 6, cy - koiHalfWidth(u) * topMul(u) - 22 - Math.sin(i * 0.7) * 8);
+      ctx.quadraticCurveTo(x - 10, dorsalTop(u) + 14, x - 16, dorsalTop(u) + 2);
       ctx.stroke();
     }
     ctx.restore();
-
-    /* --- Vây hậu môn (anal) --- */
     ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 1.2;
     ctx.beginPath();
-    const a0x = 0.50 * IW, a1x = 0.71 * IW;
-    ctx.moveTo(a0x, cy + koiHalfWidth(0.5) * bellyMul(0.5) - 2);
-    for (let i = 1; i <= 5; i++) {
-      const u = 0.50 + (0.71 - 0.50) * (i / 5), x = u * IW;
-      const h = 18 + Math.sin((i / 5) * Math.PI) * 10;
-      ctx.quadraticCurveTo(x - 10, cy + koiHalfWidth(u) * bellyMul(u) + h * 0.6, x, cy + koiHalfWidth(u) * bellyMul(u) + h);
-    }
-    ctx.lineTo(a1x, cy + koiHalfWidth(0.71) * bellyMul(0.71) - 2);
+    ctx.moveTo(d0, cy - koiHalfWidth(0.26) * topMul(0.26) + 2);
+    ctx.quadraticCurveTo(0.44 * IW, dorsalTop(0.44), d1, cy - koiHalfWidth(0.68) * topMul(0.68) + 2);
+    ctx.stroke();
+    ctx.restore();
+
+    /* --- Vây hậu môn nhỏ --- */
+    ctx.save();
+    const a0x = 0.52 * IW, a1x = 0.7 * IW;
+    ctx.beginPath();
+    ctx.moveTo(a0x, cy + koiHalfWidth(0.52) * bellyMul(0.52) - 2);
+    ctx.quadraticCurveTo(0.6 * IW, cy + koiHalfWidth(0.6) * bellyMul(0.6) + 30, a1x, cy + koiHalfWidth(0.7) * bellyMul(0.7) - 2);
     ctx.closePath();
-    ctx.fillStyle = pal.finB; ctx.fill();
+    const ag = ctx.createLinearGradient(0, cy, 0, cy + 40);
+    ag.addColorStop(0, 'rgba(255,255,255,0.85)');
+    ag.addColorStop(1, 'rgba(255,255,255,0.45)');
+    ctx.fillStyle = ag; ctx.fill();
     ctx.clip();
-    ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1;
-    for (let i = 0; i < 10; i++) {
-      const u = 0.51 + i * 0.02, x = u * IW;
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 0.9;
+    for (let i = 0; i < 8; i++) {
+      const u = 0.53 + i * 0.021, x = u * IW;
       ctx.beginPath();
       ctx.moveTo(x, cy + koiHalfWidth(u) * bellyMul(u));
-      ctx.lineTo(x - 5, cy + koiHalfWidth(u) * bellyMul(u) + 18);
+      ctx.lineTo(x - 6, cy + koiHalfWidth(u) * bellyMul(u) + 20);
       ctx.stroke();
     }
     ctx.restore();
 
-    /* --- Cặp vây bụng (pelvic) nhỏ --- */
+    /* --- Cặp vây bụng nhỏ --- */
     [-1, 1].forEach(sd => {
       ctx.save();
-      const px = 0.45 * IW, py = cy + sd * koiHalfWidth(0.45) * 0.9;
+      const px = 0.43 * IW, py = cy + sd * koiHalfWidth(0.43) * 0.92;
       ctx.beginPath();
       ctx.moveTo(px, py);
-      ctx.quadraticCurveTo(px + 22, py + sd * 44, px + 52, py + sd * 38);
-      ctx.quadraticCurveTo(px + 34, py + sd * 14, px + 6, py - sd * 3);
+      ctx.quadraticCurveTo(px + 30, py + sd * 34, px + 56, py + sd * 26);
+      ctx.quadraticCurveTo(px + 40, py + sd * 10, px + 4, py - sd * 2);
       ctx.closePath();
-      ctx.fillStyle = pal.finB; ctx.fill();
+      const plg = ctx.createLinearGradient(px, py, px + 56, py + sd * 30);
+      plg.addColorStop(0, 'rgba(255,255,255,0.88)');
+      plg.addColorStop(1, 'rgba(255,255,255,0.42)');
+      ctx.fillStyle = plg; ctx.fill();
       ctx.clip();
-      ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1;
-      for (let i = 0; i < 6; i++) {
-        ctx.beginPath();
-        ctx.moveTo(px, py);
-        ctx.lineTo(px + 12 + i * 7, py + sd * (10 + i * 5));
-        ctx.stroke();
-      }
+      finRays(ctx, px, py, sd > 0 ? 0.9 : -0.9, sd > 0 ? 1.5 : -1.5, 5, () => 42, 0.4);
       ctx.restore();
     });
 
-    /* --- Cặp vây ngực (pectoral) sau nắp mang: cánh quạt lớn, hay rung --- */
+    /* --- Cặp vây ngực: quạt tròn lớn sau nắp mang, lụa trắng hướng về đuôi --- */
     [-1, 1].forEach(sd => {
       ctx.save();
-      const rx = 0.185 * IW, ry = cy + sd * 30;
+      const rx = 0.198 * IW, ry = cy + sd * 34;
       ctx.beginPath();
       ctx.moveTo(rx, ry);
-      ctx.bezierCurveTo(rx - 52, ry + sd * 34, rx - 86, ry + sd * 86, rx - 118, ry + sd * 96);
-      ctx.quadraticCurveTo(rx - 70, ry + sd * 58, rx - 34, ry - sd * 6);
+      ctx.bezierCurveTo(rx + 52, ry + sd * 24, rx + 96, ry + sd * 62, rx + 128, ry + sd * 80);
+      ctx.quadraticCurveTo(rx + 84, ry + sd * 40, rx + 30, ry - sd * 6);
       ctx.closePath();
-      const pg = ctx.createRadialGradient(rx, ry, 4, rx - 70, ry + sd * 60, 130);
-      pg.addColorStop(0, pal.finA); pg.addColorStop(0.7, pal.finB); pg.addColorStop(1, 'rgba(255,255,255,0.02)');
+      const pg = ctx.createRadialGradient(rx, ry, 4, rx + 72, ry + sd * 48, 132);
+      pg.addColorStop(0, 'rgba(255,255,255,0.92)');
+      pg.addColorStop(0.6, 'rgba(255,255,255,0.68)');
+      pg.addColorStop(1, 'rgba(255,255,255,0.32)');
       ctx.fillStyle = pg; ctx.fill();
       ctx.clip();
-      ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-      ctx.lineWidth = 1.2;
-      const baseAng = sd > 0 ? 1.05 : -1.05;
-      finRays(ctx, rx, ry, baseAng - 0.55, baseAng + 0.55, 13, f => 78 + Math.sin(f * Math.PI) * 42, sd * 0.3);
-      ctx.lineWidth = 2.4;
-      finRays(ctx, rx, ry, baseAng, baseAng, 1, f => 112, 0);
+      const base = sd > 0 ? 0.72 : -0.72;
+      finRays(ctx, rx, ry, base - 0.5, base + 0.5, 12, f => 78 + Math.sin(f * Math.PI) * 44, 0.5);
       ctx.restore();
       ctx.save();
-      ctx.strokeStyle = pal.inkSoft; ctx.lineWidth = 1.1;
+      ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1.1;
       ctx.beginPath();
       ctx.moveTo(rx, ry);
-      ctx.bezierCurveTo(rx - 52, ry + sd * 34, rx - 86, ry + sd * 86, rx - 118, ry + sd * 96);
+      ctx.bezierCurveTo(rx + 52, ry + sd * 24, rx + 96, ry + sd * 62, rx + 128, ry + sd * 80);
       ctx.stroke();
       ctx.restore();
     });
   }
 
-  /* Mảng màu Kohaku: các mảng đỏ viền mềm hữu cơ */
-  function drawHiPattern(ctx, pal, breed) {
+  /* ---- Nền thân: sứ trắng ngọc trai / vàng kim / bạch tuyết ---- */
+  function drawBodyBase(ctx, pal, breed, ascended) {
     const cy = IH * AXIS_V;
-    if (breed === 'gold') return;
-    const patches = breed === 'white'
-      ? [{ u: 0.138, v: -0.62, ru: 0.03, rv: 0.1, tiny: true }]
-      : [
-          { u: 0.31, v: -0.1, ru: 0.105, rv: 0.36 },
-          { u: 0.48, v: 0.26, ru: 0.085, rv: 0.3 },
-          { u: 0.63, v: -0.2, ru: 0.07, rv: 0.24 }
-        ];
     ctx.save();
-    traceBody(ctx); ctx.clip();
-    patches.forEach(pt => {
-      const cx = pt.u * IW, cyy = cy + pt.v * 70;
-      const rX = pt.ru * IW, rY = pt.rv * 78;
-      for (let k = 0; k < 14; k++) {
-        const a = (k / 14) * Math.PI * 2;
-        const nz = organicNoise(pt.u * 9 + Math.cos(a), pt.v * 9 + Math.sin(a));
-        const jx = Math.cos(a) * rX * (0.72 + nz * 0.22);
-        const jy = Math.sin(a) * rY * (0.72 + nz * 0.22);
-        const g = ctx.createRadialGradient(cx + jx * 0.4, cyy + jy * 0.4, 2, cx + jx, cyy + jy, rX * 0.55);
-        g.addColorStop(0, pal.hi1);
-        g.addColorStop(0.7, pal.hi2);
-        g.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.globalAlpha = pt.tiny ? 0.85 : 0.78;
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(cx + jx, cyy + jy, rX * (pt.tiny ? 0.42 : 0.5), 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-    });
+    traceBody(ctx);
+    const g = ctx.createLinearGradient(0, cy - 115, 0, cy + 115);
+    if (breed === 'gold' || ascended) {
+      g.addColorStop(0, '#b45309');
+      g.addColorStop(0.22, '#f59e0b');
+      g.addColorStop(0.5, '#fde68a');
+      g.addColorStop(0.78, '#f59e0b');
+      g.addColorStop(1, '#92400e');
+    } else if (breed === 'white') {
+      g.addColorStop(0, '#dbe4ee');
+      g.addColorStop(0.2, '#f8fafc');
+      g.addColorStop(0.5, '#ffffff');
+      g.addColorStop(0.82, '#f1f5f9');
+      g.addColorStop(1, '#cbd5e1');
+    } else {
+      g.addColorStop(0, '#c7d2de');
+      g.addColorStop(0.16, '#f1f5f9');
+      g.addColorStop(0.48, '#ffffff');
+      g.addColorStop(0.8, '#fffaf2');
+      g.addColorStop(1, '#d6dee8');
+    }
+    ctx.fillStyle = g;
+    ctx.fill();
+    const belly = ctx.createRadialGradient(0.46 * IW, cy + 60, 12, 0.46 * IW, cy + 60, 240);
+    belly.addColorStop(0, breed === 'gold' ? 'rgba(254,243,199,0.55)' : 'rgba(255,247,237,0.6)');
+    belly.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = belly;
+    ctx.fillRect(0.1 * IW, cy, 0.72 * IW, 130);
     ctx.restore();
+  }
 
-    /* Ấn Tancho Chu Sa trên đỉnh trán (riêng biệt, luôn sắc nét) */
-    if (breed !== 'gold') {
-      const tx = 0.142 * IW;
-      const tg = ctx.createRadialGradient(tx - 5, cy - 8, 3, tx, cy - 4, 30);
-      tg.addColorStop(0, pal.tancho);
-      tg.addColorStop(0.75, pal.hiDeep || pal.hi2);
-      tg.addColorStop(1, 'rgba(185,28,28,0)');
+  /* ---- Mắt tĩnh trong sprite: runtime sẽ phủ mắt động (chớp/liếc) chồng lên ---- */
+  function drawEyeBase(ctx, pal) {
+    const cy = IH * AXIS_V;
+    [-1, 1].forEach(sd => {
+      const ex = 0.128 * IW, ey = cy + sd * 30;
       ctx.save();
-      traceBody(ctx); ctx.clip();
-      ctx.fillStyle = tg;
-      ctx.beginPath();
-      ctx.ellipse(tx, cy - 6, 27, 23, 0, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.translate(ex, ey);
+      ctx.rotate(sd * 0.18);
+      /* hốc mắt đổ bóng ngọc trai */
+      const sg = ctx.createRadialGradient(-2, -2, 2, 0, 0, 15);
+      sg.addColorStop(0, 'rgba(15,23,42,0.18)');
+      sg.addColorStop(1, 'rgba(15,23,42,0)');
+      ctx.fillStyle = sg;
+      ctx.beginPath(); ctx.ellipse(0, 0, 13, 10.5, 0, 0, Math.PI * 2); ctx.fill();
+      /* lòng trắng */
+      ctx.fillStyle = '#f8fafc';
+      ctx.beginPath(); ctx.ellipse(0, 0, 11, 8.6, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = pal.ink; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.ellipse(0, 0, 11, 8.6, 0, 0, Math.PI * 2); ctx.stroke();
+      /* tròng vàng + đồng tử */
+      ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.ellipse(0, sd * 0.7, 7.1, 5.3, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = '#020617';
+      ctx.beginPath(); ctx.ellipse(0, sd * 0.7, 4.9, 3.7, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.ellipse(-2.3, sd * 0.7 - 1.6, 2.3, 1.4, -0.3, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.75)';
+      ctx.beginPath(); ctx.arc(1.8, sd * 0.7 + 1.6, 1, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
-    }
+    });
   }
 
-  /* 700+ vảy ngói: bóng đổ, viền sáng lưng + viền tối bụng, xếp so le */
-  function drawScales(ctx, pal, breed, skin) {
-    const cy = IH * AXIS_V;
-    ctx.save();
-    traceBody(ctx); ctx.clip();
-    const cols = 40;
-    for (let c = 0; c <= cols; c++) {
-      const u = 0.195 + (c / cols) * 0.60;
-      const x = u * IW;
-      const hw = koiHalfWidth(u);
-      const r = Math.max(7, 11 + Math.sin((1 - c / cols) * Math.PI) * 4.5);
-      const rows = Math.ceil(hw / (r * 0.72));
-      for (let rr = -rows; rr <= rows; rr++) {
-        const yOff = (rr + (c % 2) * 0.5) * (r * 0.74);
-        if (Math.abs(yOff) > hw * 0.97) continue;
-        const y = cy + yOff;
-        const vNorm = yOff / (hw || 1);
-        const onHi = breed !== 'white' && breed !== 'gold' &&
-          ((Math.hypot((u - 0.31) * 2.1, (vNorm + 0.1) * 0.9) < 0.42) ||
-           (Math.hypot((u - 0.48) * 2.4, (vNorm - 0.26) * 1.0) < 0.34) ||
-           (Math.hypot((u - 0.63) * 2.6, (vNorm + 0.2) * 1.1) < 0.3));
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(vNorm * 0.16);
-        /* bóng đổ dưới mỗi vảy */
-        ctx.fillStyle = 'rgba(15,23,42,0.13)';
-        ctx.beginPath();
-        ctx.ellipse(2, 1.6, r * 1.02, r * 0.78, 0, -Math.PI * 0.5, Math.PI * 0.5);
-        ctx.fill();
-        /* nền vảy: trên mảng đỏ thì phủ đỏ mỏng để thấy vảy */
-        if (onHi) {
-          ctx.fillStyle = 'rgba(255,255,255,0.10)';
-          ctx.beginPath();
-          ctx.ellipse(0, 0, r * 1.05, r * 0.8, 0, -Math.PI * 0.55, Math.PI * 0.55);
-          ctx.fill();
-        } else if (breed === 'gold') {
-          const lg = 235 + Math.round(18 * Math.sqrt(Math.max(0, 1 - vNorm * vNorm)));
-          ctx.fillStyle = 'rgba(' + lg + ',' + Math.round(lg * 0.82) + ',' + Math.round(lg * 0.45) + ',0.5)';
-          ctx.beginPath();
-          ctx.ellipse(0, 0, r * 1.05, r * 0.8, 0, -Math.PI * 0.55, Math.PI * 0.55);
-          ctx.fill();
-        }
-        /* viền sáng nửa lưng */
-        ctx.strokeStyle = onHi ? 'rgba(254,240,138,0.75)' : (skin === 'kintsugi' ? 'rgba(250,204,21,0.6)' : pal.rimLight);
-        ctx.lineWidth = 1.15;
-        ctx.beginPath();
-        ctx.ellipse(0, 0, r * 1.04, r * 0.8, 0, Math.PI * 1.05, Math.PI * 1.95);
-        ctx.stroke();
-        /* viền tối nửa bụng */
-        ctx.strokeStyle = onHi ? 'rgba(127,29,29,0.45)' : pal.rimDark;
-        ctx.lineWidth = 0.9;
-        ctx.beginPath();
-        ctx.ellipse(0, 0, r * 1.04, r * 0.8, 0, Math.PI * 0.05, Math.PI * 0.95);
-        ctx.stroke();
-        /* điểm bắt sáng li ti trên vài vảy */
-        if ((c * 7 + rr * 13) % 11 === 0) {
-          ctx.fillStyle = 'rgba(255,255,255,0.85)';
-          ctx.beginPath();
-          ctx.arc(-r * 0.35, -r * 0.28, 1.1, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.restore();
-      }
-    }
-    ctx.restore();
-  }
-
-  /* Đường bên (lateral line) + lỗ chân lông cảm giác */
-  function drawLateralLine(ctx, pal) {
-    const cy = IH * AXIS_V;
-    ctx.save();
-    traceBody(ctx); ctx.clip();
-    ctx.strokeStyle = 'rgba(71,85,105,0.28)';
-    ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    for (let u = 0.205; u <= 0.78; u += 0.01) {
-      const x = u * IW, y = cy + Math.sin(u * 22) * 3 + 2;
-      if (u === 0.205) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    ctx.fillStyle = pal.inkSoft;
-    for (let u = 0.21; u <= 0.77; u += 0.018) {
-      const x = u * IW, y = cy + Math.sin(u * 22) * 3 + 2;
-      ctx.beginPath();
-      ctx.arc(x, y, 1.5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-  }
-
-  /* Nắp mang, đầu, miệng, lỗ mũi, lỗ cảm giác, hốc mắt (mắt vẽ động mỗi frame) */
+  /* ---- Đầu: nắp mang thanh lịch ngọc trai, hốc mắt, lỗ mũi ---- */
   function drawHeadAndGill(ctx, pal) {
     const cy = IH * AXIS_V;
     ctx.save();
     traceBody(ctx); ctx.clip();
 
-    /* nắp mang (operculum): 3 cung đồng tâm + bóng lưỡi liềm */
-    const gx = 0.158 * IW;
-    const crescent = ctx.createLinearGradient(gx + 30, cy - 50, gx + 62, cy + 50);
-    crescent.addColorStop(0, 'rgba(15,23,42,0)');
-    crescent.addColorStop(0.5, 'rgba(15,23,42,0.14)');
-    crescent.addColorStop(1, 'rgba(15,23,42,0)');
-    ctx.fillStyle = crescent;
+    /* sắc độ khối đầu: tối nhẹ ở sống lưng, sáng ngọc trai ở má */
+    const gx = 0.19 * IW;
+    const shade = ctx.createLinearGradient(gx - 46, cy - 70, gx + 26, cy + 70);
+    shade.addColorStop(0, 'rgba(100,116,139,0.10)');
+    shade.addColorStop(0.45, 'rgba(255,255,255,0)');
+    shade.addColorStop(1, 'rgba(100,116,139,0.08)');
+    ctx.fillStyle = shade;
     ctx.beginPath();
-    ctx.ellipse(gx + 40, cy, 34, 56, 0, -1.2, 1.2);
+    ctx.ellipse(gx + 4, cy, 34, 66, 0, -1.25, 1.25);
     ctx.fill();
+
+    /* nắp mang: cung chủ đạo mảnh + viền sáng song song sát mép */
     ctx.strokeStyle = pal.ink;
-    [42, 50, 58].forEach((rad, i) => {
-      ctx.lineWidth = 2 - i * 0.4;
-      ctx.globalAlpha = 0.85 - i * 0.18;
-      ctx.beginPath();
-      ctx.arc(gx, cy, rad, -1.15, 1.15);
-      ctx.stroke();
-    });
-    ctx.globalAlpha = 1;
-    /* viền sáng mép nắp mang */
-    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-    ctx.lineWidth = 1.2;
+    ctx.lineWidth = 1.9;
     ctx.beginPath();
-    ctx.arc(gx - 2, cy, 40, -1.0, 1.0);
+    ctx.arc(gx, cy, 64, -1.05, 1.05);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(gx - 3.5, cy, 59, -0.98, 0.98);
     ctx.stroke();
 
-    /* hốc mắt đổ bóng mềm (mắt thật vẽ động ở bước overlay) */
-    [-1, 1].forEach(sd => {
-      const ex = 0.118 * IW, ey = cy + sd * 27.5;
-      const sg = ctx.createRadialGradient(ex, ey, 2, ex, ey, 12);
-      sg.addColorStop(0, 'rgba(15,23,42,0.22)');
-      sg.addColorStop(1, 'rgba(15,23,42,0)');
-      ctx.fillStyle = sg;
-      ctx.beginPath();
-      ctx.ellipse(ex, ey, 11, 9, sd * 0.2, 0, Math.PI * 2);
-      ctx.fill();
-    });
-
-    /* Miệng vẽ động mỗi frame (drawHeadFeatures) để ngậm nhịp + đớp mồi, không vẽ trùng ở sprite */
-
-    /* 2 lỗ mũi */
+    /* 2 lỗ mũi nhỏ ở mõm */
     [-1, 1].forEach(sd => {
       ctx.fillStyle = pal.ink;
       ctx.beginPath();
-      ctx.ellipse(0.1 * IW, cy + sd * 10, 2.6, 1.7, sd * 0.4, 0, Math.PI * 2);
+      ctx.ellipse(0.082 * IW, cy + sd * 10, 2.2, 1.5, sd * 0.4, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
       ctx.beginPath();
-      ctx.arc(0.1 * IW - 0.8, cy + sd * 10 - 0.6, 0.8, 0, Math.PI * 2);
+      ctx.arc(0.082 * IW - 0.7, cy + sd * 10 - 0.5, 0.7, 0, Math.PI * 2);
       ctx.fill();
     });
-
-    /* lỗ cảm giác trên đầu & má (chi tiết vi mô) */
-    ctx.fillStyle = 'rgba(71,85,105,0.55)';
-    for (let i = 0; i < 9; i++) {
-      const u = 0.085 + (i % 3) * 0.018;
-      const sd = i < 3 ? -1 : 1;
-      const row = Math.floor(i / 3) % 3;
-      ctx.beginPath();
-      ctx.arc(u * IW, cy + sd * (16 + row * 5.5), 1.15, 0, Math.PI * 2);
-      ctx.fill();
-    }
     ctx.restore();
+
+    drawEyeBase(ctx, pal);
   }
 
-  /* Viền thân rõ ràng 2 lớp + ánh ướt + mạch vàng Kintsugi + mào Kim Long */
+  /* ---- Viền thân, ánh ướt, mạch vàng Kintsugi, mào Kim Long ---- */
   function drawOutlineAndGlaze(ctx, pal, skin, ascended, breed) {
     const cy = IH * AXIS_V;
     ctx.save();
@@ -687,75 +750,74 @@
     ctx.strokeStyle = 'rgba(15,23,42,0.18)';
     ctx.lineWidth = 5; ctx.stroke();
     ctx.strokeStyle = pal.ink;
-    ctx.lineWidth = 2.1; ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-    ctx.lineWidth = 0.9;
+    ctx.lineWidth = 2; ctx.stroke();
     ctx.save();
     traceBody(ctx); ctx.clip();
-    ctx.translate(0, -2.2);
+    ctx.translate(0, -2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+    ctx.lineWidth = 0.9;
     traceBody(ctx); ctx.stroke();
     ctx.restore();
     ctx.restore();
 
-    /* dải ánh sáng ướt chạy dọc lườn */
+    /* dải ánh ướt dọc lườn */
     ctx.save();
     traceBody(ctx); ctx.clip();
-    const wet = ctx.createLinearGradient(0, cy - 20, 0, cy + 20);
+    const wet = ctx.createLinearGradient(0, cy - 26, 0, cy + 14);
     wet.addColorStop(0, 'rgba(255,255,255,0)');
-    wet.addColorStop(0.42, 'rgba(255,255,255,0.42)');
-    wet.addColorStop(0.58, 'rgba(255,255,255,0.42)');
+    wet.addColorStop(0.45, 'rgba(255,255,255,0.4)');
+    wet.addColorStop(0.6, 'rgba(255,255,255,0.4)');
     wet.addColorStop(1, 'rgba(255,255,255,0)');
     ctx.fillStyle = wet;
-    ctx.fillRect(0.08 * IW, cy - 20, 0.72 * IW, 40);
-    /* vài tia lấp lánh */
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    [[0.28, -14], [0.42, 10], [0.57, -9], [0.69, 8]].forEach(p => {
+    ctx.fillRect(0.1 * IW, cy - 26, 0.72 * IW, 40);
+    [[0.27, -16], [0.4, 8], [0.55, -11], [0.68, 6]].forEach(p => {
       const x = p[0] * IW, y = cy + p[1];
-      ctx.beginPath(); ctx.arc(x, y, 1.6, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-      ctx.lineWidth = 0.8;
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.beginPath(); ctx.arc(x, y, 1.5, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 0.7;
       ctx.beginPath();
-      ctx.moveTo(x - 4, y); ctx.lineTo(x + 4, y);
-      ctx.moveTo(x, y - 4); ctx.lineTo(x, y + 4);
+      ctx.moveTo(x - 3.5, y); ctx.lineTo(x + 3.5, y);
+      ctx.moveTo(x, y - 3.5); ctx.lineTo(x, y + 3.5);
       ctx.stroke();
     });
     ctx.restore();
 
-    /* mạch vàng Kintsugi: đường chính + nhánh nhỏ, chạy dọc sống lưng */
+    /* mạch vàng Kintsugi tinh tế dọc sống lưng */
     if (skin === 'kintsugi') {
       ctx.save();
       traceBody(ctx); ctx.clip();
       ctx.strokeStyle = '#eab308';
-      ctx.lineWidth = 2.1; ctx.lineCap = 'round';
+      ctx.lineCap = 'round';
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      for (let u = 0.18; u <= 0.76; u += 0.012) {
-        const x = u * IW, y = cy - koiHalfWidth(u) * 0.55 + Math.sin(u * 38) * 5;
-        if (u === 0.18) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      for (let u = 0.2; u <= 0.74; u += 0.012) {
+        const x = u * IW, y = cy - koiHalfWidth(u) * 0.6 + Math.sin(u * 36) * 4;
+        if (u === 0.2) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       }
       ctx.stroke();
-      ctx.lineWidth = 1.3;
-      [0.33, 0.52, 0.66].forEach((u, i) => {
-        const x = u * IW, y = cy - koiHalfWidth(u) * 0.55;
+      ctx.lineWidth = 1.2;
+      [0.34, 0.52, 0.64].forEach((u, i) => {
+        const x = u * IW, y = cy - koiHalfWidth(u) * 0.6;
         ctx.beginPath();
         ctx.moveTo(x, y);
-        ctx.lineTo(x + 14, y + 16 + i * 6);
+        ctx.lineTo(x + 12, y + 14 + i * 5);
         ctx.stroke();
       });
       ctx.restore();
     }
 
-    /* mào vảy vàng dọc sống lưng khi hóa Kim Long */
+    /* mào vảy vàng khi hóa Kim Long */
     if (ascended) {
       ctx.save();
       ctx.fillStyle = '#fde047';
       ctx.strokeStyle = '#b45309';
-      ctx.lineWidth = 1;
-      for (let u = 0.22; u <= 0.64; u += 0.035) {
+      ctx.lineWidth = 0.9;
+      for (let u = 0.24; u <= 0.62; u += 0.034) {
         const x = u * IW, y = cy - koiHalfWidth(u) * topMul(u);
         ctx.beginPath();
-        ctx.moveTo(x - 6, y + 1);
-        ctx.lineTo(x, y - 11 - Math.sin(u * 30) * 3);
-        ctx.lineTo(x + 6, y + 1);
+        ctx.moveTo(x - 5, y + 1);
+        ctx.lineTo(x, y - 10 - Math.sin(u * 30) * 2.5);
+        ctx.lineTo(x + 5, y + 1);
         ctx.closePath();
         ctx.fill(); ctx.stroke();
       }
@@ -763,76 +825,43 @@
     }
   }
 
-  function drawBodyBase(ctx, pal, breed, ascended) {
-    const cy = IH * AXIS_V;
-    ctx.save();
-    traceBody(ctx);
-    const g = ctx.createLinearGradient(0, cy - 80, 0, cy + 80);
-    if (breed === 'gold' || ascended) {
-      g.addColorStop(0, '#b45309');
-      g.addColorStop(0.25, '#f59e0b');
-      g.addColorStop(0.5, '#fde68a');
-      g.addColorStop(0.78, '#f59e0b');
-      g.addColorStop(1, '#92400e');
-    } else if (breed === 'white') {
-      g.addColorStop(0, '#dbe4ee');
-      g.addColorStop(0.22, '#f8fafc');
-      g.addColorStop(0.5, '#ffffff');
-      g.addColorStop(0.8, '#f1f5f9');
-      g.addColorStop(1, '#cbd5e1');
-    } else {
-      g.addColorStop(0, pal.bodyEdge);
-      g.addColorStop(0.18, pal.bodyHi);
-      g.addColorStop(0.5, '#ffffff');
-      g.addColorStop(0.82, pal.belly);
-      g.addColorStop(1, pal.bodyEdge);
-    }
-    ctx.fillStyle = g;
-    ctx.fill();
-    /* ấm bụng nhẹ */
-    const belly = ctx.createRadialGradient(0.45 * IW, cy + 55, 10, 0.45 * IW, cy + 55, 220);
-    belly.addColorStop(0, breed === 'gold' ? 'rgba(254,243,199,0.5)' : 'rgba(255,247,237,0.55)');
-    belly.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = belly;
-    ctx.fillRect(0.1 * IW, cy, 0.7 * IW, 110);
-    ctx.restore();
-  }
-
-  /* Vương miện sinh nhật / gài trà mi nữ học giả */
+  /* ---- Phụ kiện đầu: vương miện sinh nhật / trà mi nữ học giả ---- */
   function drawHeadAccessory(ctx, eventMode, gender) {
     const cy = IH * AXIS_V;
     if (eventMode === 'birthday') {
-      const cx = 0.138 * IW;
+      const u = 0.14, cx = u * IW;
+      const topY = cy - koiHalfWidth(u) * topMul(u) - 8;
       ctx.save();
-      ctx.fillStyle = '#fde047'; ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 1.5;
+      ctx.fillStyle = '#fde047'; ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 1.4;
       ctx.beginPath();
-      ctx.moveTo(cx - 14, cy - 22); ctx.lineTo(cx - 9, cy - 34);
-      ctx.lineTo(cx - 3, cy - 24); ctx.lineTo(cx + 2, cy - 38);
-      ctx.lineTo(cx + 7, cy - 24); ctx.lineTo(cx + 13, cy - 34);
-      ctx.lineTo(cx + 16, cy - 22);
+      ctx.moveTo(cx - 14, topY + 10); ctx.lineTo(cx - 9, topY - 4);
+      ctx.lineTo(cx - 3, topY + 8); ctx.lineTo(cx + 2, topY - 8);
+      ctx.lineTo(cx + 7, topY + 8); ctx.lineTo(cx + 13, topY - 4);
+      ctx.lineTo(cx + 16, topY + 10);
       ctx.closePath(); ctx.fill(); ctx.stroke();
       [-12, 2, 14].forEach((dx, i) => {
         ctx.fillStyle = i === 1 ? '#f43f5e' : '#38bdf8';
-        ctx.beginPath(); ctx.arc(cx + dx, cy - 24, 2.6, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx + dx, topY + 8, 2.4, 0, Math.PI * 2); ctx.fill();
       });
       ctx.restore();
     } else if ((eventMode === 'vn_2010' || eventMode === 'vn_0803') && gender === 'female') {
-      const cx = 0.152 * IW, py = cy - 30;
+      const u = 0.158, cx = u * IW;
+      const py = cy - koiHalfWidth(u) * topMul(u) - 4;
       ctx.save();
-      ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(cx - 10, py + 6); ctx.lineTo(cx + 12, py + 10); ctx.stroke();
+      ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 1.8;
+      ctx.beginPath(); ctx.moveTo(cx - 9, py + 5); ctx.lineTo(cx + 11, py + 9); ctx.stroke();
       ctx.translate(cx, py);
       for (let i = 0; i < 5; i++) {
         ctx.save();
         ctx.rotate((i * Math.PI * 2) / 5);
         ctx.fillStyle = i % 2 === 0 ? '#f472b6' : '#fbcfe8';
         ctx.beginPath();
-        ctx.ellipse(0, -6.5, 4.2, 6.5, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, -6, 3.9, 6, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       }
       ctx.fillStyle = '#fef08a';
-      ctx.beginPath(); ctx.arc(0, 0, 2.8, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(0, 0, 2.6, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     }
   }
@@ -850,11 +879,13 @@
     drawHeadAccessory(sctx, CFG.eventMode, CFG.userGender);
   }
   buildSprite();
+  if (typeof window !== 'undefined') window.__ffSprite = spriteCv;
+
 
   /* ============================================================
      PHẦN 2 — MESH 2.5D + CHUYỂN ĐỘNG UYỂN CHUYỂN
      ============================================================ */
-  const GX = 60, GY = 28, NV = (GX + 1) * (GY + 1);
+  const GX = 72, GY = 32, NV = (GX + 1) * (GY + 1);
   const uvs = new Float32Array(NV * 2), xy = new Float32Array(NV * 2), idx = [];
   for (let y = 0; y <= GY; y++) for (let x = 0; x <= GX; x++) {
     const o = (y * (GX + 1) + x) * 2;
@@ -875,6 +906,7 @@
   const fc = fx.getContext('2d');
   document.body.appendChild(cv);
   document.body.appendChild(fx);
+  if (typeof window !== 'undefined') window.__ffCanvases = { body: cv, fx };
 
   const buf = document.createElement('canvas');
   const bctx = buf.getContext('2d');
@@ -889,7 +921,7 @@
     uc.setTransform(dpr, 0, 0, dpr, 0, 0);
     fc.setTransform(dpr, 0, 0, dpr, 0, 0);
     DPR = dpr;
-    k = Math.max(0.62, Math.min(1.05, W / 1280)) * (250 * CFG.scale) / IW;
+    k = Math.max(0.62, Math.min(1.05, W / 1280)) * (395 * CFG.scale) / IW;
   }
   resize();
   addEventListener('resize', resize);
@@ -1014,10 +1046,10 @@
 
   /* ---- 4 râu cảm biến Verlet (2 ngắn trên, 2 dài dưới) ---- */
   const barbels = [
-    { sd: -1, uA: 0.062, vOff: 0.03, segs: 14, segLen: 4.6, w: 1.0, p: [] },
-    { sd: 1, uA: 0.062, vOff: 0.03, segs: 14, segLen: 4.6, w: 1.0, p: [] },
-    { sd: -1, uA: 0.078, vOff: 0.055, segs: 19, segLen: 5.4, w: 1.3, p: [] },
-    { sd: 1, uA: 0.078, vOff: 0.055, segs: 19, segLen: 5.4, w: 1.3, p: [] }
+    { sd: -1, uA: 0.052, vOff: 0.022, segs: 14, segLen: 4.6, w: 1.0, p: [] },
+    { sd: 1, uA: 0.052, vOff: 0.022, segs: 14, segLen: 4.6, w: 1.0, p: [] },
+    { sd: -1, uA: 0.068, vOff: 0.045, segs: 19, segLen: 5.4, w: 1.3, p: [] },
+    { sd: 1, uA: 0.068, vOff: 0.045, segs: 19, segLen: 5.4, w: 1.3, p: [] }
   ];
   barbels.forEach(rb => { for (let q = 0; q < rb.segs; q++) rb.p.push({ x: M.x + q * 3, y: M.y }); });
 
@@ -1050,7 +1082,7 @@
   function step(now) {
     const f = Math.min((now - last) / 16.67, 3);
     last = now; T = now / 1000;
-    k = Math.max(0.62, Math.min(1.05, W / 1280)) * (250 * CFG.scale) / IW;
+    k = Math.max(0.62, Math.min(1.05, W / 1280)) * (395 * CFG.scale) / IW;
     if (pulseProg > 0) pulseProg = Math.max(0, pulseProg - 0.022 * f);
 
     const targetAlpha = CFG.paused ? 0 : (CFG.typingFocus ? 0.52 : 1);
@@ -1094,7 +1126,7 @@
       pearl.x = M.x; pearl.y = M.y;
     } else if (idle < 2000) {
       aiModeText = 'Tuần Vũ Môn (Lượn vòng quanh trỏ)';
-      const R = 96 * Math.max(0.65, Math.min(1, W / 1300));
+      const R = 155 * Math.max(0.7, Math.min(1, W / 1300));
       const th = Math.atan2(Hd.y - M.y, Hd.x - M.x) + 0.72 * CFG.spinDir;
       tx = M.x + Math.cos(th) * R; ty = M.y + Math.sin(th) * R;
       const dm = Math.hypot(Hd.x - M.x, Hd.y - M.y);
@@ -1112,10 +1144,12 @@
       const tpy = Math.max(160, Math.min(H - 160, M.y + Math.cos(T * 0.26) * 55));
       pearl.x += (tpx - pearl.x) * 0.025 * f;
       pearl.y += (tpy - pearl.y) * 0.025 * f;
-      const rx = Math.min(205, W * 0.22), ry = Math.min(120, H * 0.17);
-      const om = T * 1.08 * CFG.spinDir;
-      tx = pearl.x + Math.sin(om) * rx; ty = pearl.y + Math.sin(om * 2) * ry;
-      cap = 3.3; cruise = 2.9;
+      /* vòng chầu rộng, chậm, êm — cá duỗi mình thay vì cuộn tròn */
+      const rx = Math.min(345, W * 0.33), ry = Math.min(195, H * 0.24);
+      const om = T * 0.55 * CFG.spinDir;
+      tx = pearl.x + Math.sin(om) * rx;
+      ty = pearl.y + Math.sin(om * 1.15 + 0.6) * ry;
+      cap = 3; cruise = 2.6;
     }
 
     /* --- Lái mượt: gia tốc góc hạn chế + tốc độ êm --- */
@@ -1221,9 +1255,9 @@
     for (let j = 0; j <= GX; j++) {
       const u = j / GX, ca = Math.cos(spA[j]), sa = Math.sin(spA[j]);
       const nx = Math.sin(spA[j]), ny = -Math.cos(spA[j]);
-      const lat = (2.3 + Math.min(sp, 22) * 0.24) * CFG.waveAmp * (0.06 + 0.94 * Math.pow(u, 2.2)) * Math.sin(phase - u * 4.4);
-      const pecZone = Math.max(0, 1 - Math.abs(u - 0.21) / 0.09);
-      const gillZone = Math.max(0, 1 - Math.abs(u - 0.185) / 0.035);
+      const lat = (1.7 + Math.min(sp, 22) * 0.2) * CFG.waveAmp * (0.06 + 0.94 * Math.pow(u, 2.2)) * Math.sin(phase - u * 4.4);
+      const pecZone = Math.max(0, 1 - Math.abs(u - 0.2) / 0.09);
+      const gillZone = Math.max(0, 1 - Math.abs(u - 0.19) / 0.035);
       for (let yy = 0; yy <= GY; yy++) {
         const v = yy / GY, off0 = (v - AXIS_V) * IH * k, side = Math.abs(v - AXIS_V);
         const pecFactor = pecZone * Math.max(0, (side - 0.08) / 0.42);
@@ -1328,7 +1362,7 @@
     if (buf.width < bw || buf.height < bh) { buf.width = Math.max(buf.width, bw); buf.height = Math.max(buf.height, bh); }
     bctx.setTransform(1, 0, 0, 1, 0, 0);
     bctx.clearRect(0, 0, buf.width, buf.height);
-    const step2 = LOW ? 3 : 2, lastRow = GY * (GX + 1) * 2;
+    const step2 = LOW ? 3 : 1, lastRow = GY * (GX + 1) * 2;
 
     function tri(u0, v0, u1, v1, u2, v2, x0p, y0p, x1p, y1p, x2p, y2p) {
       const d = u0 * (v1 - v2) + u1 * (v2 - v0) + u2 * (v0 - v1);
@@ -1428,81 +1462,88 @@
     fc.restore();
   }
 
-  /* Đặc trưng động trên đầu: nắp mang thở, mắt chớp, miệng ngậm nhịp */
+  /* Đặc trưng động trên đầu: nắp mang thở, mắt chớp, miệng ngậm nhịp.
+     Mỗi cụm bám theo điểm lưới mesh tương ứng nên không lệch khi cá cuộn người. */
   function drawHeadFeatures(pal) {
-    const n0 = Math.round(NOSE_U * GX);
-    const a = spA[n0];
     fc.save();
-    fc.translate(spX[n0], spY[n0]);
-    fc.rotate(a);
-    fc.scale(k);
-    /* hệ local: +x về phía trước; sprite +x ngược lại nên đảo dấu */
-    const L = (u, v) => [-(u - NOSE_U) * IW, -(v - AXIS_V) * IH];
     fc.globalAlpha = curAlpha;
+    fc.lineCap = 'round'; fc.lineJoin = 'round';
     const breath = 1 + 0.045 * Math.sin(T * 3.4);
-
-    /* nắp mang thở */
-    const [gx, gy] = L(0.158, 0.5);
-    fc.save();
-    fc.translate(gx, gy);
-    fc.scale(breath, breath);
-    fc.strokeStyle = pal.ink;
-    [42, 50, 58].forEach((rad, i) => {
-      fc.globalAlpha = curAlpha * (0.5 - i * 0.1);
-      fc.lineWidth = 2 - i * 0.4;
-      fc.beginPath(); fc.arc(0, 0, rad, -1.15, 1.15); fc.stroke();
-    });
-    fc.restore();
-    fc.globalAlpha = curAlpha;
-
-    /* miệng ngậm nhịp + đớp mồi */
-    const [mx, my] = L(0.075, 0.5);
-    const open = (0.35 + 0.3 * Math.sin(T * 3.2)) * 0.6 + mouthGulp * 4;
-    fc.strokeStyle = pal.ink; fc.lineWidth = 2.2; fc.lineCap = 'round';
-    fc.beginPath();
-    fc.moveTo(mx - 16, my - 2);
-    fc.quadraticCurveTo(mx + 4, my + 2 + open, mx + 26, my - 1);
-    fc.stroke();
-    fc.strokeStyle = pal.inkSoft; fc.lineWidth = 1.2;
-    fc.beginPath();
-    fc.moveTo(mx - 12, my + 3);
-    fc.quadraticCurveTo(mx + 4, my + 7 + open, mx + 24, my + 4);
-    fc.stroke();
-
-    /* 2 mắt: tròng vàng, đồng tử liếc, điểm bắt sáng kép, mí chớp (khớp hốc mắt trong sprite: cy ± 27.5px) */
-    [-1, 1].forEach(sd => {
-      const [ex, ey] = L(0.118, 0.5 + sd * 0.0491);
+    function place(j, draw) {
       fc.save();
-      fc.translate(ex, ey);
-      fc.rotate(sd * 0.2);
-      const blink = blinkT > 0 ? Math.max(0, Math.sin((0.16 - blinkT) / 0.16 * Math.PI)) : 0;
-      /* lòng trắng mắt */
-      fc.fillStyle = '#f8fafc';
-      fc.beginPath(); fc.ellipse(0, 0, 8.2, 6, 0, 0, Math.PI * 2); fc.fill();
-      fc.strokeStyle = pal.ink; fc.lineWidth = 1.4;
-      fc.beginPath(); fc.ellipse(0, 0, 8.2, 6, 0, 0, Math.PI * 2); fc.stroke();
-      if (blink < 0.95) {
-        /* tròng mắt vàng + đồng tử */
-        const px = eyeLookX * 1.8, py = eyeLookY * 1.3 + sd * 0.6;
-        fc.strokeStyle = '#fbbf24'; fc.lineWidth = 1.8;
-        fc.beginPath(); fc.ellipse(px, py, 5.4, 3.8, 0, 0, Math.PI * 2); fc.stroke();
-        fc.fillStyle = '#020617';
-        fc.beginPath(); fc.ellipse(px, py, 3.6, 2.6, 0, 0, Math.PI * 2); fc.fill();
-        fc.fillStyle = '#ffffff';
-        fc.beginPath(); fc.ellipse(px - 1.8, py - 1.2, 1.7, 1, -0.3, 0, Math.PI * 2); fc.fill();
-        fc.fillStyle = 'rgba(255,255,255,0.7)';
-        fc.beginPath(); fc.arc(px + 1.4, py + 1.1, 0.8, 0, Math.PI * 2); fc.fill();
-      }
-      /* mí mắt chớp: màu da cá phủ xuống */
-      if (blink > 0) {
-        fc.fillStyle = CFG.breed === 'gold' ? '#f59e0b' : '#f8fafc';
-        fc.beginPath();
-        fc.ellipse(0, 0, 8.4, 6.2 * blink, 0, -Math.PI / 2, Math.PI / 2);
-        fc.fill();
-        fc.strokeStyle = pal.inkSoft; fc.lineWidth = 1;
-        fc.beginPath(); fc.moveTo(-8, 0); fc.lineTo(8, 0); fc.stroke();
-      }
+      fc.translate(spX[j], spY[j]);
+      fc.rotate(spA[j]);
+      fc.scale(k, k);
+      draw((u, v) => [-(u - j / GX) * IW, -(v - AXIS_V) * IH]);
       fc.restore();
+    }
+
+    /* nắp mang thở (tâm u=0.19, bán kính 64) */
+    place(Math.round(0.19 * GX), L => {
+      const [gx, gy] = L(0.19, 0.5);
+      fc.save();
+      fc.translate(gx, gy);
+      fc.scale(breath, breath);
+      fc.strokeStyle = pal.ink;
+      fc.globalAlpha = curAlpha * 0.32;
+      fc.lineWidth = 1.9;
+      fc.beginPath(); fc.arc(0, 0, 64, -1.05, 1.05); fc.stroke();
+      fc.globalAlpha = curAlpha * 0.15;
+      fc.lineWidth = 1;
+      fc.beginPath(); fc.arc(0, 0, 59, -0.98, 0.98); fc.stroke();
+      fc.restore();
+    });
+
+    /* miệng nhỏ ở mõm tù, ngậm nhịp + đớp mồi (u≈0.052..0.072) */
+    place(Math.round(0.062 * GX), L => {
+      const [mx0, my0] = L(0.052, 0.5);
+      const [mx1, my1] = L(0.072, 0.5);
+      const open = 0.6 + 0.4 * Math.sin(T * 3.2) + mouthGulp * 5.5;
+      fc.strokeStyle = pal.ink; fc.lineWidth = 2;
+      fc.beginPath();
+      fc.moveTo(mx0, my0 - 1.5);
+      fc.quadraticCurveTo((mx0 + mx1) / 2, my0 + open, mx1, my1 - 1);
+      fc.stroke();
+      fc.strokeStyle = pal.inkSoft; fc.lineWidth = 1.1;
+      fc.beginPath();
+      fc.moveTo(mx0 - 1, my0 + 2.5);
+      fc.quadraticCurveTo((mx0 + mx1) / 2, my0 + 4 + open, mx1 - 1, my1 + 2.5);
+      fc.stroke();
+    });
+
+    /* 2 mắt (u=0.128), khớp cỡ mắt tĩnh, chớp & liếc theo mồi */
+    place(Math.round(0.128 * GX), L => {
+      const blink = blinkT > 0 ? Math.max(0, Math.sin((0.16 - blinkT) / 0.16 * Math.PI)) : 0;
+      [-1, 1].forEach(sd => {
+        const [ex, ey] = L(0.128, 0.5 + sd * 0.05357);
+        fc.save();
+        fc.translate(ex, ey);
+        fc.rotate(sd * 0.18);
+        fc.fillStyle = '#f8fafc';
+        fc.beginPath(); fc.ellipse(0, 0, 11, 8.6, 0, 0, Math.PI * 2); fc.fill();
+        fc.strokeStyle = pal.ink; fc.lineWidth = 1.6;
+        fc.beginPath(); fc.ellipse(0, 0, 11, 8.6, 0, 0, Math.PI * 2); fc.stroke();
+        if (blink < 0.95) {
+          const px = eyeLookX * 2.2, py = eyeLookY * 1.5 + sd * 0.7;
+          fc.strokeStyle = '#fbbf24'; fc.lineWidth = 2.2;
+          fc.beginPath(); fc.ellipse(px, py, 7.1, 5.3, 0, 0, Math.PI * 2); fc.stroke();
+          fc.fillStyle = '#020617';
+          fc.beginPath(); fc.ellipse(px, py, 4.9, 3.7, 0, 0, Math.PI * 2); fc.fill();
+          fc.fillStyle = '#ffffff';
+          fc.beginPath(); fc.ellipse(px - 2.3, py - 1.6, 2.3, 1.4, -0.3, 0, Math.PI * 2); fc.fill();
+          fc.fillStyle = 'rgba(255,255,255,0.75)';
+          fc.beginPath(); fc.arc(px + 1.8, py + 1.6, 1, 0, Math.PI * 2); fc.fill();
+        }
+        if (blink > 0) {
+          fc.fillStyle = CFG.breed === 'gold' ? '#f59e0b' : '#f8fafc';
+          fc.beginPath();
+          fc.ellipse(0, 0, 11.2, 8.8 * blink, 0, -Math.PI / 2, Math.PI / 2);
+          fc.fill();
+          fc.strokeStyle = pal.inkSoft; fc.lineWidth = 1;
+          fc.beginPath(); fc.moveTo(-11, 0); fc.lineTo(11, 0); fc.stroke();
+        }
+        fc.restore();
+      });
     });
     fc.restore();
   }
@@ -1613,7 +1654,7 @@
     /* gợn sóng */
     waterRipples.forEach(wr => {
       uc.save();
-      uc.strokeStyle = dark ? 'rgba(186,230,253,' + wr.life * 0.28 * curAlpha + ')' : 'rgba(30,64,175,' + wr.life * 0.2 * curAlpha + ')';
+      uc.strokeStyle = dark ? 'rgba(186,230,253,' + wr.life * 0.18 * curAlpha + ')' : 'rgba(30,64,175,' + wr.life * 0.2 * curAlpha + ')';
       uc.lineWidth = 1.25;
       uc.beginPath(); uc.arc(wr.x, wr.y, wr.r, 0, Math.PI * 2); uc.stroke();
       uc.restore();
