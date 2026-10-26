@@ -1004,19 +1004,7 @@
       ctx.fill();
     });
 
-    /* miệng: đường môi cong nhẹ + viền môi dưới */
-    ctx.strokeStyle = pal.ink;
-    ctx.lineWidth = 2.2;
-    ctx.beginPath();
-    ctx.moveTo(0.062 * IW, cy - 2);
-    ctx.quadraticCurveTo(0.082 * IW, cy + 6, 0.108 * IW, cy + 3);
-    ctx.stroke();
-    ctx.strokeStyle = pal.inkSoft;
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.moveTo(0.066 * IW, cy + 3);
-    ctx.quadraticCurveTo(0.084 * IW, cy + 9, 0.106 * IW, cy + 6.5);
-    ctx.stroke();
+    /* Miệng vẽ động mỗi frame (drawHeadFeatures) để ngậm nhịp + đớp mồi, không vẽ trùng ở sprite */
 
     /* 2 lỗ mũi */
     [-1, 1].forEach(sd => {
@@ -1833,9 +1821,9 @@
     fc.quadraticCurveTo(mx + 4, my + 7 + open, mx + 24, my + 4);
     fc.stroke();
 
-    /* 2 mắt: tròng vàng, đồng tử liếc, điểm bắt sáng kép, mí chớp */
+    /* 2 mắt: tròng vàng, đồng tử liếc, điểm bắt sáng kép, mí chớp (khớp hốc mắt trong sprite: cy ± 27.5px) */
     [-1, 1].forEach(sd => {
-      const [ex, ey] = L(0.118, 0.5 + sd * 0.098);
+      const [ex, ey] = L(0.118, 0.5 + sd * 0.0491);
       fc.save();
       fc.translate(ex, ey);
       fc.rotate(sd * 0.2);
